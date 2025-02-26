@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>당신의 투자 성향</h2>
+  <p>당신의 투자 성향은 <strong>{{ risk_tolerance }}</strong>입니다.</p>
+  <a href="{% url 'ai_recommendation:recommend' %}">AI 추천 받기</a>
+{% endblock %}
