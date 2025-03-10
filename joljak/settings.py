@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'user_analysis',
+    'dashboard',
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -70,7 +72,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'joljak.wsgi.application'
+ASGI_APPLICATION = 'joljak.asgi.application'
 
 
 # Database
@@ -129,4 +131,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.User'
 
-LOGIN_REDIRECT_URL = '/'    # 로그인 성공 후 메인 페이지 이동
+LOGIN_REDIRECT_URL = '/'
+
+LOGOUT_REDIRECT_URL = '/'
