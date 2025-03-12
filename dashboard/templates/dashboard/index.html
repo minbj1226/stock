@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="fw-bold">📢 주요 뉴스</h3>
+    <div class="row">
+        {% for news in stock_news %}
+            <div class="col-md-6">
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold">
+                            <a href="{{ news.link }}" target="_blank" class="text-dark text-decoration-none">
+                                {{ news.title|safe }}
+                            </a>
+                        </h6>
+                        <p class="card-text text-muted small">{{ news.description|safe }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ news.pubDate }}</small>
+                            <span class="badge bg-primary">주식</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

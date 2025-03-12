@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'accounts',
     'user_analysis',
     'dashboard',
-    "channels",
 ]
 
 MIDDLEWARE = [
@@ -132,5 +131,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = '/'
-
 LOGOUT_REDIRECT_URL = '/'
+
+NAVER_CLIENT_ID = '44MiCDZMOgDBEKc2NmCy' #네이버 API
+NAVER_CLIENT_SECRET = '2LP12c9chD'
+
+KIS_APP_KEY = "PSp7psitoiWzFj6LURnXcAOFm3mqTR0wYdvg"    # 한국투자증권 API
+KIS_APP_SECRET = ""

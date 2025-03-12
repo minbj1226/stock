@@ -31,11 +31,9 @@
     </style>
 </head>
 <body>
-
-    <!-- 네비게이션 바 -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white navbar-custom">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'dashboard:dashboard_home' %}">로고</a>
+            <a class="navbar-brand" href="{% url 'dashboard:dashboard_index' %}">로고</a>
             <div class="d-flex align-items-center">
                 {% if user.is_authenticated %}
                     <form method="post" action="{% url 'accounts:logout' %}" style="margin: 0;">
