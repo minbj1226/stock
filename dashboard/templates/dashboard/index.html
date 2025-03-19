@@ -2,26 +2,55 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h3 class="fw-bold">📢 주요 뉴스</h3>
+    <!-- 📈 시장 지수 -->
+    <h3 class="fw-bold">📈 시장 지수</h3>
     <div class="row">
-        {% for news in stock_news %}
-            <div class="col-md-6">
-                <div class="card mb-3 shadow-sm border-0">
+        {% for market in market_data %}
+            <div class="col-md-3">
+                <div class="card text-center mb-3 shadow-sm border-0">
                     <div class="card-body">
-                        <h6 class="card-title fw-bold">
-                            <a href="{{ news.link }}" target="_blank" class="text-dark text-decoration-none">
-                                {{ news.title|safe }}
-                            </a>
-                        </h6>
-                        <p class="card-text text-muted small">{{ news.description|safe }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">{{ news.pubDate }}</small>
-                            <span class="badge bg-primary">주식</span>
-                        </div>
+                        <h5 class="fw-bold">{{ market.name }}</h5>
+                        {% if market.current_price %}
+                            <p class="mb-1 text-primary fs-4 fw-bold">{{ market.current_price }}</p>
+                            <p class="mb-1">
+                                <span class="{% if market.trend == 'up' %}text-danger{% elif market.trend == 'down' %}text-blue{% else %}text-muted{% endif %}">
+                                    {{ market.price_change }} ({{ market.change_rate }})
+                                </span>
+                            </p>
+                        {% else %}
+                            <p class="text-muted">데이터 없음</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         {% endfor %}
+    </div>
+
+    <!-- 📢 주요 뉴스 -->
+    <h3 class="fw-bold mt-4">📢 주요 뉴스</h3>
+    <div class="row">
+        {% if stock_news %}
+            {% for news in stock_news %}
+                <div class="col-md-6">
+                    <div class="card mb-3 shadow-sm border-0">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold">
+                                <a href="{{ news.link }}" target="_blank" class="text-dark text-decoration-none">
+                                    {{ news.title|safe }}
+                                </a>
+                            </h6>
+                            <p class="card-text text-muted small">{{ news.description|safe }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ news.pubDate }}</small>
+                                <span class="badge bg-primary">주식</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">주요 뉴스가 없습니다.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -133,8 +133,3 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-NAVER_CLIENT_ID = '' #네이버 API
-NAVER_CLIENT_SECRET = '' #네이버 Secret API
-
-KIS_APP_KEY = ""    # 한국투자증권 API
-KIS_APP_SECRET = ""  # 한국투자증권 Secret API
