@@ -1,5 +1,6 @@
 import requests
 from django.conf import settings
+import time
 
 def get_stock_news(query="주식", display=4):
     url = "https://openapi.naver.com/v1/search/news.json"
@@ -24,8 +25,7 @@ def get_market_indices():
     indices = {
         "0001": "코스피",
         "1001": "코스닥",
-        "2001": "코스피200",
-        "3001": "KRX150"
+        "2001": "코스피200"
     }
 
     url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-stock/v1/quotations/inquire-daily-indexchartprice"
@@ -41,8 +41,8 @@ def get_market_indices():
     for iscd, name in indices.items():
         params = {
             "fid_cond_mrkt_div_code": "U",
-            "fid_input_date_1": "20220411",
-            "fid_input_date_2": "20220509",
+            "fid_input_date_1": "20250320",
+            "fid_input_date_2": "20250324",
             "fid_input_iscd": iscd,
             "fid_period_div_code": "D"
         }
@@ -63,5 +63,6 @@ def get_market_indices():
                 "price_change": f"{direction} {price_change}",
                 "change_rate": f"{change_rate}%"
             })
+            time.sleep(1)
 
     return market_data

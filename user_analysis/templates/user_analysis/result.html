@@ -1,6 +1,36 @@
 {% extends "base.html" %}
+
 {% block content %}
-  <h2>당신의 투자 성향</h2>
-  <p>당신의 투자 성향은 <strong>{{ risk_tolerance }}</strong>입니다.</p>
-  <a href="{% url 'ai_recommendation:recommend' %}">AI 추천 받기</a>
+  <div class="container">
+    <!-- 투자 성향 분석 결과 -->
+    <div class="card p-4 mb-4">
+      <h2>📊 당신의 투자 성향</h2>
+      <p>당신의 투자 성향은 <strong>{{ risk_tolerance }}</strong>입니다.</p>
+      <h2>💡 투자 성향 설명</h2>
+      <div>
+        {% if risk_tolerance == "공격투자형" %}
+          <h3>🚀 공격투자형</h3>
+          <p>시장평균 수익률을 훨씬 넘어서는 높은 수준의 투자수익을 추구하며, 손실위험을 적극 수용함.</p>
+          <p>투자금의 대부분을 주식, 주식형펀드 또는 파생상품 등에 투자할 의향이 있음.</p>
+        {% elif risk_tolerance == "적극투자형" %}
+          <h3>🔥 적극투자형</h3>
+          <p>투자원금의 보전보다는 위험을 감내하더라도 높은 수준의 투자수익을 실현을 추구함.</p>
+          <p>투자금의 상당 부분을 주식, 주식형펀드 또는 파생상품 등에 투자할 의향이 있음.</p>
+        {% elif risk_tolerance == "위험중립형" %}
+          <h3>⚖️ 위험중립형</h3>
+          <p>투자에 상응하는 투자위험이 있음을 충분히 인식하고 있음.</p>
+          <p>예: 적금보다 높은 수익을 기대할 수 있다면 일정수준의 손실위험을 감수할 수 있음.</p>
+        {% elif risk_tolerance == "안정추구형" %}
+          <h3>🛡 안정추구형</h3>
+          <p>투자원금의 손실위험은 최소화하고, 안정적인 수익을 목표로 함.</p>
+          <p>예: 적금보다 높은 수익을 위해 변동성 높은 상품에 일부 투자할 의향이 있음.</p>
+        {% else %}
+          <h3>💙 안정형</h3>
+          <p>투자원금의 손실이 발생하는 것을 원하지 않음.</p>
+          <p>예금 또는 국공채 수준의 수익률을 기대함.</p>
+        {% endif %}
+      </div>
+      <a href="{% url 'user_analysis:result' %}" class="btn btn-primary">종목 추천 받기</a>
+    </div>
+  </div>
 {% endblock %}
