@@ -20,7 +20,6 @@ def get_stock_news(query="주식", display=4):
         return response.json().get("items", [])
     return []
 
-
 def get_market_indices():
     indices = {
         "0001": "코스피",
