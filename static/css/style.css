@@ -1,0 +1,93 @@
+/* 기본 스타일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    text-align: center;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.auth {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.auth button {
+    background-color: white;
+    color: #4CAF50;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.auth button:hover {
+    background-color: #ddd;
+}
+
+.market-index, .news {
+    margin-top: 100px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.index-items {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.index-item {
+    background-color: #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.news-item {
+    background-color: #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+footer {
+    margin-top: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    font-size: 0.9rem;
+}
