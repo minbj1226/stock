@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>로그아웃 되었습니다.</h2>
-  <a href="{% url 'accounts:login' %}">다시 로그인</a>
+  <div class="logout-container">
+    <h2 class="logout-message">로그아웃 되었습니다.</h2>
+    <a class="logout-link" href="{% url 'accounts:login' %}">다시 로그인</a>
+  </div>
 {% endblock %}

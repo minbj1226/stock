@@ -66,20 +66,20 @@ def get_market_indices():
 
     return market_data
 
-def get_top_movers(market="J", is_rising=0, top_n=5):
-    url = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/ranking/fluctuation"
+def get_top_movers(market="", is_rising=0, top_n=5):
+    API_URL = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/ranking/fluctuation"
     headers = {
         "content-type": "application/json",
         "authorization": f"Bearer {settings.ACCESS_LIVE_TOKEN}",
         "appkey": settings.APP_LIVE_KEY,
-        "appsecret": settings.APP_LIVE_SECRET_KEY,
+        "appsecret": settings.APP_LIVE_SECRET,
         "tr_id": "FHPST01700000"
     }
 
     params = {
-        "fid_cond_mrkt_div_code": market,
+        "fid_cond_mrkt_div_code": "J",
         "fid_cond_scr_div_code": "20170",
-        "fid_input_iscd": "0001",
+        "fid_input_iscd": market,
         "fid_rank_sort_cls_code": is_rising,  # 상승 = "0", 하락 = "1"
         "fid_input_cnt_1": str(top_n),
         "fid_prc_cls_code": "0",
@@ -93,39 +93,30 @@ def get_top_movers(market="J", is_rising=0, top_n=5):
         "fid_rsfl_rate2": ""
     }
 
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(API_URL, headers=headers, params=params)
 
-    if response.status_code != 200:
-        print(f"❌ HTTP 오류: {response.status_code}, 응답: {response.text}")
+    if response.status_code == 200:
+        data = response.json()
+
+        if "rt_cd" in data and data["rt_cd"] == "0":
+            items = data.get("output", [])
+
+            reverse_order = is_rising == 0
+
+            sorted_items = sorted(items, key=lambda x: float(x['prdy_ctrt']), reverse=reverse_order)
+
+            result = []
+            for idx, item in enumerate(sorted_items[:top_n], start=1):
+                result.append({
+                    "순위": idx,
+                    "종목명": item["hts_kor_isnm"],  # 종목명
+                    "현재가": int(item["stck_prpr"]),  # 현재가
+                    "등락": f"{int(item['prdy_vrss'])} ({item['prdy_ctrt']}%)"  # 등락률
+                })
+            return result
+        else:
+            print(f"API 오류: {data}")
+            return []
+    else:
+        print(f"HTTP 오류: {response.status_code}, 응답: {response.text}")
         return []
-
-    data = response.json()
-    print(f"📌 API 응답: {data}")  # 디버깅용 출력
-
-    if "rt_cd" not in data or data["rt_cd"] != "0":
-        print(f"❌ API 오류 코드 반환: {data.get('msg1', '알 수 없는 오류')}")
-        return []
-
-    items = data.get("output", [])
-
-    if not items:
-        print("⚠️ API 응답에서 output 데이터가 없습니다.")
-        return []
-
-    reverse_order = is_rising == 0
-    sorted_items = sorted(items, key=lambda x: float(x.get('prdy_ctrt', 0)), reverse=reverse_order)
-
-    result = []
-    for idx, item in enumerate(sorted_items[:top_n], start=1):
-        try:
-            result.append({
-                "순위": idx,
-                "종목명": item.get("hts_kor_isnm", "N/A"),  # 종목명 (없으면 "N/A")
-                "현재가": int(item.get("stck_prpr", 0)),  # 현재가 (없으면 0)
-                "등락": f"{int(item.get('prdy_vrss', 0))} ({item.get('prdy_ctrt', '0')}%)"  # 등락률
-            })
-        except (ValueError, TypeError) as e:
-            print(f"⚠️ 데이터 변환 오류: {e} -> {item}")
-            continue
-
-    return result

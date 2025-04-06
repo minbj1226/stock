@@ -28,6 +28,14 @@
 
     <!-- 📈 급등/급락 종목 -->
     <div class="row mt-4">
+    <div class="col-12 mb-3 text-center">
+        <div class="btn-group" role="group" aria-label="시장 선택">
+            <a href="?market=0000" class="btn {% if selected_market == '0000' %}btn-dark{% else %}btn-outline-dark{% endif %}">전체</a>
+            <a href="?market=0001" class="btn {% if selected_market == '0001' %}btn-dark{% else %}btn-outline-dark{% endif %}">코스피</a>
+            <a href="?market=1001" class="btn {% if selected_market == '1001' %}btn-dark{% else %}btn-outline-dark{% endif %}">코스닥</a>
+            <a href="?market=2001" class="btn {% if selected_market == '2001' %}btn-dark{% else %}btn-outline-dark{% endif %}">코스피200</a>
+        </div>
+    </div>
         <div class="col-md-6">
             <h3 class="fw-bold text-success">📈 급등 TOP 5</h3>
             <table class="table table-bordered text-center">
@@ -40,7 +48,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for stock in top_risers %}
+                    {% for stock in top_rising %}
                     <tr>
                         <td>{{ stock.순위 }}</td>
                         <td>{{ stock.종목명 }}</td>
@@ -64,7 +72,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for stock in top_fallers %}
+                    {% for stock in top_falling %}
                     <tr>
                         <td>{{ stock.순위 }}</td>
                         <td>{{ stock.종목명 }}</td>

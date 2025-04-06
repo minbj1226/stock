@@ -1,4 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static "css/signup.css" %}">
+{% endblock %}
+
 {% block content %}
   <h2>회원가입</h2>
   <form method="post">
