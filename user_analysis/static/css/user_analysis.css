@@ -1,0 +1,45 @@
+/* 투자 성향 테스트 페이지 스타일 */
+.test-container {
+    margin: 30px auto;
+    padding: 20px;
+    max-width: 600px;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.test-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #343a40;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.test-form {
+    font-size: 1rem;
+    color: #495057;
+}
+
+.test-form p {
+    margin-bottom: 15px;
+}
+
+.test-form button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.test-form button:hover {
+    background-color: #0056b3;
+}

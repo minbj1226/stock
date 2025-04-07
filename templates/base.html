@@ -6,40 +6,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}투자 시뮬레이션{% endblock %}</title>
 
+    {% load static %}
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- 커스텀 CSS -->
     <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 
+    {% block head %}
+    {% endblock %}
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white navbar-custom">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'dashboard:dashboard_index' %}">로고</a>
-            <div class="d-flex align-items-center">
-                <a class="nav-link me-3" href="{% url 'user_analysis:test' %}">투자 성향 테스트</a>
-                {% if user.is_authenticated %}
-                    <form method="post" action="{% url 'accounts:logout' %}" style="margin: 0;">
-                        {% csrf_token %}
-                        <button type="submit" class="login-btn">로그아웃</button>
-                    </form>
-                {% else %}
-                    <a class="login-btn me-2" href="{% url 'accounts:login' %}">로그인</a>
-                    <a class="login-btn" href="{% url 'accounts:signup' %}">회원가입</a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
-
+<nav class="navbar navbar-dark bg-dark fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'dashboard:dashboard_index' %}">P2S2</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">P2S2</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="d-flex align-items-center">
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'accounts:logout' %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="login-btn">로그아웃</button>
+            </form>
+        {% else %}
+            <a class="login-btn me-2" href="{% url 'accounts:login' %}"> 로그인</a>
+            <a class="login-btn" href="{% url 'accounts:signup' %}">회원가입</a>
+        {% endif %}
+    </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">홈</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'user_analysis:test' %}">모의투자</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              투자분석
+            </a>
+            <ul class="dropdown-menu dropdown-menu-white">
+                <li><a class="dropdown-item" href="{% url 'user_analysis:test' %}">성향분석표 | 성향분석질문지</a></li>
+              <li><a class="dropdown-item" href="#">투자현황</a></li>
+              <li>
+                <hr class="dropdown-divider">
+              </li>
+              <li><a class="dropdown-item" href="#">포트폴리오</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form class="d-flex mt-3" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-success" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</nav>
     <!-- 본문 -->
-    <main class="container mt-4">
+    <main class="container mt-4" style="padding-top: 70px;">
         {% block content %}
         {% endblock %}
     </main>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

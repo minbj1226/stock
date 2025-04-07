@@ -123,6 +123,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+    BASE_DIR / "static",  # 프로젝트의 공통 static 디렉토리
+    BASE_DIR / "accounts/static",  # accounts 앱의 static 디렉토리
+)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
