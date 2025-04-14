@@ -42,22 +42,22 @@
       <div class="offcanvas-body">
         <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">홈</a>
+            <a class="nav-link active" aria-current="page" href="{% url 'dashboard:dashboard_index' %}">홈</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'user_analysis:test' %}">모의투자</a>
+            <a class="nav-link" href="{% url 'stocks:transaction' %}" style="color: white;">모의투자</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
               투자분석
             </a>
             <ul class="dropdown-menu dropdown-menu-white">
-                <li><a class="dropdown-item" href="{% url 'user_analysis:test' %}">성향분석표 | 성향분석질문지</a></li>
-              <li><a class="dropdown-item" href="#">투자현황</a></li>
+                <li><a class="dropdown-item" href="{% url 'user_analysis:intro' %}">성향분석표 | 성향분석질문지</a></li>
+              <li><a class="dropdown-item" href="#">마이페이지</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">포트폴리오</a></li>
+              <li><a class="dropdown-item" href="#">사용가이드</a></li>
             </ul>
           </li>
         </ul>

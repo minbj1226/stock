@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>주식 거래</h2>
+
+<div class="account-info">
+    <br>
+    <h3>📌 계좌 정보</h3>
+    <p><strong>계좌 번호:</strong> {{ balance_info.account_number }}</p>
+    <p><strong>예수금:</strong> {{ balance_info.deposits.KRW.amount|floatformat:0 }} 원</p>
+    <p><strong>총 매입 금액:</strong> {{ balance_info.purchase_amount|floatformat:0 }} 원</p>
+    <p><strong>현재 평가 금액:</strong> {{ balance_info.current_amount|floatformat:0 }} 원</p>
+    <p><strong>총 수익:</strong> {{ balance_info.profit|floatformat:0 }} 원</p>
+    <p><strong>총 수익률:</strong> {{ balance_info.profit_rate|floatformat:2 }} %</p>
+</div>
+
+<hr>
+
+<form method="post">
+    <h3>📌 거래</h3>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">주문하기</button>
+</form>
+
+{% if messages %}
+<br>
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+{% if success %}
+<div class="alert alert-success">{{ success }}</div>
+{% endif %}
+
+{% endblock %}

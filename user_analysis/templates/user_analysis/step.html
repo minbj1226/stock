@@ -1,4 +1,10 @@
-.test-container {
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/user_analysis.css' %}">
+  <style>
+    .test-container {
       max-width: 600px;
       margin: 40px auto;
       padding: 30px;
@@ -80,3 +86,44 @@
       flex: 1;
       text-align: right;
     }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="test-container">
+    <div class="test-title">투자 성향 테스트</div>
+
+    <div class="progress">
+        <div class="progress-bar" role="progressbar"
+             style="width: {{ progress }}%;"
+             aria-valuenow="{{ step }}" aria-valuemin="0" aria-valuemax="{{ total }}">
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="question-text">
+            {{ question.text }}
+        </div>
+
+        <div class="choice-group">
+            {% for choice in question.choices.all %}
+                <button type="submit" name="choice" value="{{ choice.id }}" class="choice-button">
+                    {{ choice.text }}
+                </button>
+            {% endfor %}
+        </div>
+
+        <div class="test-footer">
+            {% if step > 1 %}
+              <a href="{% url 'user_analysis:question_step' step=step|add:'-1' %}" class="back-btn">← 이전으로</a>
+            {% else %}
+              <span></span>
+            {% endif %}
+            <div class="remaining-info">
+              {{ remain }}문항 남았습니다.
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

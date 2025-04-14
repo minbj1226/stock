@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div style="text-align: center; max-width: 500px; margin: 80px auto; padding: 0 20px;">
+    <h2 style="font-size: 28px; font-weight: 700;">금융 성향 테스트</h2>
+    
+    <p style="color: #666; margin-top: 20px; line-height: 1.7;">
+        많은 전문가들이 금융 플래닝의 첫 번째 단계는<br>
+        '자신의 성향을 이해하는 것'이라고 말해요.<br>
+        성향에 맞춘 목표와 실행 계획은 꾸준히 나아갈 수 있는 힘이 되어주거든요.
+    </p>
+
+    <p style="color: #666; margin-top: 10px; line-height: 1.7;">
+        지금 나의 금융 성향을 알아보고,<br>
+        앞으로의 금융 생활도 계획해보세요!
+    </p>
+
+    <a href="{% url 'user_analysis:question_step' step=1 %}" 
+       style="display: inline-block; margin-top: 30px; padding: 14px 30px; background: #000; color: #fff; border-radius: 30px; font-weight: 600; text-decoration: none;">
+        테스트 시작
+    </a>
+</div>
+{% endblock %}

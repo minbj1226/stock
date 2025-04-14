@@ -38,9 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'accounts',
     'user_analysis',
     'dashboard',
+    'stocks'
 ]
 
 MIDDLEWARE = [
@@ -126,7 +128,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
     BASE_DIR / "static",  # 프로젝트의 공통 static 디렉토리
-    BASE_DIR / "accounts/static",  # accounts 앱의 static 디렉토리
 )
 
 # Default primary key field type

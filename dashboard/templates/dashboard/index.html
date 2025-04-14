@@ -1,115 +1,182 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
 {% block content %}
-<div class="container mt-4">
-    <!-- 📈 시장 지수 -->
-    <h3 class="fw-bold">📈 시장 지수</h3>
-    <div class="row">
-        {% for market in market_data %}
-            <div class="col-md-3">
-                <div class="card text-center mb-3 shadow-sm border-0">
+<style>
+    .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .table-rounded {
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .toss-font {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+</style>
+
+<div class="d-flex justify-content-center fade-in">
+    <div class="container mt-4">
+        <!-- 📈 시장 지수 -->
+        <h3 class="fw-bold">📈 시장 지수</h3>
+        <div class="row">
+            {% for market in market_data %}
+            <div class="col-md-4">
+                <div class="card text-center mb-3 shadow-sm border-0 rounded">
                     <div class="card-body">
                         <h5 class="fw-bold">{{ market.name }}</h5>
                         {% if market.current_price %}
-                            <p class="mb-1 text-primary fs-4 fw-bold">{{ market.current_price }}</p>
-                            <p class="mb-1">
-                                <span class="{% if market.trend == 'up' %}text-danger{% elif market.trend == 'down' %}text-blue{% else %}text-muted{% endif %}">
-                                    {{ market.price_change }} ({{ market.change_rate }})
-                                </span>
-                            </p>
+                            <div class="text-center">
+                                <p class="text-primary fs-5 fw-bold mb-0">{{ market.current_price|intcomma }}</p>
+                                <p class="mb-2 toss-font">
+                                    <span class="{% if market.trend == 'up' %}text-danger{% elif market.trend == 'down' %}text-blue{% else %}text-muted{% endif %}">
+                                        {{ market.price_change }} ({{ market.change_rate }})
+                                    </span>
+                                </p>
+                            </div>
+                            <canvas id="{{ market.name }}Chart" height="200"></canvas>
                         {% else %}
                             <p class="text-muted">데이터 없음</p>
                         {% endif %}
                     </div>
                 </div>
             </div>
-        {% endfor %}
-    </div>
-
-    <!-- 📈 급등/급락 종목 -->
-    <div class="row mt-4">
-    <div class="col-12 mb-3 text-center">
-        <div class="btn-group" role="group" aria-label="시장 선택">
-            <a href="?market=0000" class="btn {% if selected_market == '0000' %}btn-dark{% else %}btn-outline-dark{% endif %}">전체</a>
-            <a href="?market=0001" class="btn {% if selected_market == '0001' %}btn-dark{% else %}btn-outline-dark{% endif %}">코스피</a>
-            <a href="?market=1001" class="btn {% if selected_market == '1001' %}btn-dark{% else %}btn-outline-dark{% endif %}">코스닥</a>
-            <a href="?market=2001" class="btn {% if selected_market == '2001' %}btn-dark{% else %}btn-outline-dark{% endif %}">코스피200</a>
-        </div>
-    </div>
-        <div class="col-md-6">
-            <h3 class="fw-bold text-success">📈 급등 TOP 5</h3>
-            <table class="table table-bordered text-center">
-                <thead>
-                    <tr class="table-success">
-                        <th>순위</th>
-                        <th>종목명</th>
-                        <th>현재가</th>
-                        <th>등락</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for stock in top_rising %}
-                    <tr>
-                        <td>{{ stock.순위 }}</td>
-                        <td>{{ stock.종목명 }}</td>
-                        <td>{{ stock.현재가 }}</td>
-                        <td class="text-danger">{{ stock.등락 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% endfor %}
         </div>
 
-        <div class="col-md-6">
-            <h3 class="fw-bold text-danger">📉 급락 TOP 5</h3>
-            <table class="table table-bordered text-center">
-                <thead>
-                    <tr class="table-danger">
-                        <th>순위</th>
-                        <th>종목명</th>
-                        <th>현재가</th>
-                        <th>등락</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for stock in top_falling %}
-                    <tr>
-                        <td>{{ stock.순위 }}</td>
-                        <td>{{ stock.종목명 }}</td>
-                        <td>{{ stock.현재가 }}</td>
-                        <td class="text-primary">{{ stock.등락 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+        <!-- 📈 급등/급락 종목 -->
+        <div class="row mt-4">
+            <div class="col-12 mb-3">
+                <ul class="nav nav-tabs custom-tab justify-content-start border-0">
+                    <li class="nav-item">
+                        <a href="?market=0000" class="nav-link {% if selected_market == '0000' %}active{% endif %}">
+                        전체
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="?market=0001" class="nav-link {% if selected_market == '0001' %}active{% endif %}">
+                        코스피
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="?market=1001" class="nav-link {% if selected_market == '1001' %}active{% endif %}">
+                        코스닥
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="?market=2001" class="nav-link {% if selected_market == '2001' %}active{% endif %}">
+                        코스피200
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-    <!-- 📢 주요 뉴스 -->
-    <h3 class="fw-bold mt-4">📢 주요 뉴스</h3>
-    <div class="row">
-        {% if stock_news %}
-            {% for news in stock_news %}
+            <div class="col-md-6">
+                <h3 class="fw-bold">📈 급등 TOP 5</h3>
+                <table class="table text-center custom-table">
+                    <thead>
+                        <tr>
+                            <th>순위</th>
+                            <th>종목명</th>
+                            <th>현재가</th>
+                            <th>등락</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in top_rising %}
+                        <tr class="toss-font">
+                            <td>{{ stock.순위 }}</td>
+                            <td>{{ stock.종목명 }}</td>
+                            <td>{{ stock.현재가|intcomma }}</td>
+                            <td class="text-danger">{{ stock.등락|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h3 class="fw-bold">📉 급락 TOP 5</h3>
+                <table class="table text-center custom-table">
+                    <thead>
+                        <tr>
+                            <th>순위</th>
+                            <th>종목명</th>
+                            <th>현재가</th>
+                            <th>등락</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in top_falling %}
+                        <tr class="toss-font">
+                            <td>{{ stock.순위 }}</td>
+                            <td>{{ stock.종목명 }}</td>
+                            <td>{{ stock.현재가|intcomma }}</td>
+                            <td class="text-primary">{{ stock.등락|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 📢 주요 뉴스 -->
+        <h3 class="fw-bold mt-4">📢 주요 뉴스</h3>
+        <div class="row">
+            {% if stock_news %}
+                {% for news in stock_news %}
                 <div class="col-md-6">
-                    <div class="card mb-3 shadow-sm border-0">
+                    <div class="card mb-3 shadow-sm border-0 rounded">
                         <div class="card-body">
-                            <h6 class="card-title fw-bold">
+                            <h6 class="card-title fw-bold toss-font mb-0">
                                 <a href="{{ news.link }}" target="_blank" class="text-dark text-decoration-none">
                                     {{ news.title|safe }}
                                 </a>
                             </h6>
-                            <p class="card-text text-muted small">{{ news.description|safe }}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">{{ news.pubDate }}</small>
-                                <span class="badge bg-primary">주식</span>
-                            </div>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-muted">주요 뉴스가 없습니다.</p>
-        {% endif %}
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">주요 뉴스가 없습니다.</p>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const chartConfigs = {{ market_data|safe }};
+
+    chartConfigs.forEach(market => {
+        const ctx = document.getElementById(`${market.name}Chart`).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: market.chart_data.map((_, i) => i + 1),
+                datasets: [{
+                    label: market.name,
+                    data: market.chart_data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.3,
+                    pointRadius: 2
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { display: true }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -1,8 +1,7 @@
 import requests
 from django.conf import settings
-import time
 
-def get_stock_news(query="주식", display=4):
+def get_stock_news(query="주식", display=8):
     url = "https://openapi.naver.com/v1/search/news.json"
     headers = {
         "X-Naver-Client-Id": settings.NAVER_CLIENT_ID,
@@ -40,29 +39,32 @@ def get_market_indices():
     for iscd, name in indices.items():
         params = {
             "fid_cond_mrkt_div_code": "U",
-            "fid_input_date_1": "20250320",
-            "fid_input_date_2": "20250324",
+            "fid_input_date_1": "20250310",
+            "fid_input_date_2": "20250624",
             "fid_input_iscd": iscd,
             "fid_period_div_code": "D"
         }
 
         response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200 and response.json().get("rt_cd") == "0":
-            output1 = response.json().get("output1", {})
+            output2 = response.json().get("output2", [])
 
-            # 📌 데이터 변환
-            current_price = float(output1.get("bstp_nmix_prpr", 0))  # 현재 지수
-            price_change = float(output1.get("bstp_nmix_prdy_vrss", 0))  # 전일 대비 변화
-            change_rate = float(output1.get("bstp_nmix_prdy_ctrt", 0))  # 전일 대비 변화율
-            direction = "▲" if output1.get("prdy_vrss_sign") == "2" else "▼"  # 상승/하락 구분
+            # 📈 미니 차트용 시계열 데이터 구성
+            chart_data = [float(item["bstp_nmix_prpr"]) for item in output2 if item.get("bstp_nmix_prpr")][::-1]
+
+            output1 = response.json().get("output1", {})
+            current_price = float(output1.get("bstp_nmix_prpr", 0))
+            price_change = float(output1.get("bstp_nmix_prdy_vrss", 0))
+            change_rate = float(output1.get("bstp_nmix_prdy_ctrt", 0))
+            direction = "▲" if output1.get("prdy_vrss_sign") == "2" else "▼"
 
             market_data.append({
                 "name": name,
                 "current_price": current_price,
                 "price_change": f"{direction} {price_change}",
-                "change_rate": f"{change_rate}%"
+                "change_rate": f"{change_rate}%",
+                "chart_data": chart_data
             })
-            time.sleep(1)
 
     return market_data
 
