@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">{{ profile_type }} 추천 종목</h2>
+
+    {% if stocks %}
+    <table class="table table-bordered">
+        <thead class="thead-light">
+            <tr>
+                <th>종목명</th>
+                <th>티커</th>
+                <th>PER</th>
+                <th>PBR</th>
+                <th>EPS</th>
+                <th>BPS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td>{{ stock.corp_name }}</td>
+                <td>{{ stock.ticker }}</td>
+                <td>{{ stock.per|default:"-" }}</td>
+                <td>{{ stock.pbr|default:"-" }}</td>
+                <td>{{ stock.eps|default:"-" }}</td>
+                <td>{{ stock.bps|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>추천할 종목이 없습니다.</p>
+    {% endif %}
+
+    <div class="mt-3">
+        <a href="{% url 'dashboard:dashboard_index' %}" class="btn btn-primary">홈으로 돌아가기</a>
+    </div>
+</div>
+{% endblock %}

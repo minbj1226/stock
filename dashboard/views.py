@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .utils import get_stock_news, get_market_indices, get_top_movers
+from .utils.api import get_stock_news, get_market_indices, get_top_movers
 
 def index(request):
     market_input = request.GET.get("market", "")  # ""이면 전체

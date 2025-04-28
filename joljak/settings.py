@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'accounts',
     'user_analysis',
     'dashboard',
-    'stocks'
+    'stocks',
+    'recommend'
 ]
 
 MIDDLEWARE = [
@@ -140,3 +141,11 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+NAVER_CLIENT_ID = '44MiCDZMOgDBEKc2NmCy' #네이버 API
+NAVER_CLIENT_SECRET = '2LP12c9chD'
+
+APP_KEY = "PSp7psitoiWzFj6LURnXcAOFm3mqTR0wYdvg"    # 한국투자증권 모의투자 API
+APP_SECRET = "CxpywGdg9FE1wYrglWRW42wLL2Rfyjap6pLJSnqVIrWhPlWBzIKE1hpNEFVOIAzWYvRzLR+QIUXTZlG5zdgYD+yvUijEL7qu1Niqqf+3yEoFm8IBPdwTxSg5aXeifH0r+I2gnn/tU0CddVx9cX16uImgETTxtkVdUzg/V54O0GlSVZPW4OM="
+
+APP_LIVE_KEY = "PSaxZrRqDLyginQGGy8DZRqU5xKUmwiyU4iF"
+APP_LIVE_SECRET = "9j+4SU9zHYL0BdTpLXmCKC8pb6Kq8ErLqltEUqelbexdnZDm1LWUqiNGHA0zH84MuCBSO6xlUzYmSh1zAlFyx6P3U0ZdDPAMoKh4Exx4wFMRY2ligzFdyWMjvDcdw95pAonXeaIAvsLyV7cbbiYb/r6yshv7kgnBYl+nHL8QYXKkdMcvdCw="
