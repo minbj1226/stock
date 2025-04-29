@@ -11,11 +11,7 @@ from pykis import PyKis
 # TODO: 2. 실전 투자는 모의 투자를 주석처리하고 실전 투자 코드를 사용하세요.
 # 한국투자증권 API 인증 객체 로드 (실전 투자)
 kis = PyKis(
-    id="minbj26",  # HTS 로그인 ID
-    account="73071159-01",  # 계좌번호
-    appkey="PSaxZrRqDLyginQGGy8DZRqU5xKUmwiyU4iF",  # AppKey 36자리
-    secretkey="9j+4SU9zHYL0BdTpLXmCKC8pb6Kq8ErLqltEUqelbexdnZDm1LWUqiNGHA0zH84MuCBSO6xlUzYmSh1zAlFyx6P3U0ZdDPAMoKh4Exx4wFMRY2ligzFdyWMjvDcdw95pAonXeaIAvsLyV7cbbiYb/r6yshv7kgnBYl+nHL8QYXKkdMcvdCw=",  # SecretKey 180자리
-    keep_token=True,  # API 접속 토큰 자동 저장
+     # API 접속 토큰 자동 저장
 )
 
 # TODO: 3. 모의 투자는 실전 투자를 주석처리하고 모의 투자 코드를 사용하세요.
