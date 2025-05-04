@@ -1,40 +1,54 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4">{{ profile_type }} 추천 종목</h2>
+  <h2 class="mb-4">📋 추천 종목 목록</h2>
 
-    {% if stocks %}
-    <table class="table table-bordered">
-        <thead class="thead-light">
-            <tr>
-                <th>종목명</th>
-                <th>티커</th>
-                <th>PER</th>
-                <th>PBR</th>
-                <th>EPS</th>
-                <th>BPS</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for stock in stocks %}
-            <tr>
-                <td>{{ stock.corp_name }}</td>
-                <td>{{ stock.ticker }}</td>
-                <td>{{ stock.per|default:"-" }}</td>
-                <td>{{ stock.pbr|default:"-" }}</td>
-                <td>{{ stock.eps|default:"-" }}</td>
-                <td>{{ stock.bps|default:"-" }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+  {% if stocks %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>순위</th>
+          <th>종목명</th>
+          <th>현재가</th>
+          <th>PER</th>
+          <th>PBR</th>
+          <th>EPS</th>
+          <th>변동성</th>
+          <th>β</th>
+          <th>시장</th>
+          <th>시가총액</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stock in stocks %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>
+            <a href="https://finance.naver.com/item/main.naver?code={{ stock.ticker }}"
+               target="_blank" class="text-decoration-none fw-bold">
+              {{ stock.corp_name }}
+            </a>
+          </td>
+          <td>{{ stock.stck_prpr|intcomma }}원</td>
+          <td>{{ stock.per }}</td>
+          <td>{{ stock.pbr }}</td>
+          <td>{{ stock.eps }}</td>
+          <td>{{ stock.volatility }}%</td>
+          <td>{{ stock.beta }}</td>
+          <td>{{ stock.market }}</td>
+          <td>{{ stock.market_cap|intcomma }}원</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-    {% else %}
-    <p>추천할 종목이 없습니다.</p>
-    {% endif %}
+  </div>
+  {% else %}
+    <p class="text-muted">추천할 종목이 없습니다.</p>
+  {% endif %}
 
-    <div class="mt-3">
-        <a href="{% url 'dashboard:dashboard_index' %}" class="btn btn-primary">홈으로 돌아가기</a>
-    </div>
+  <a href="/" class="btn btn-outline-secondary mt-4">홈으로</a>
 </div>
 {% endblock %}
