@@ -1,8 +1,8 @@
 from django.urls import path
-from . import views
+from recommend import views
 
 app_name = 'recommend'
 
 urlpatterns = [
-    path(' ', views.recommend_view, name='recommend_list'),
+    path('', views.recommend_view, name='recommend_list'),
 ]

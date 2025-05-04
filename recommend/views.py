@@ -1,18 +1,17 @@
-from .utils import recommend_stocks_by_profile
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
+from recommend.services import recommend_stocks_by_profile
 from accounts.models import InvestmentProfile
 
 def recommend_view(request):
     user = request.user
+    try:
+        profile_type = user.investment_profile.risk_tolerance
+    except InvestmentProfile.DoesNotExist:
+        profile_type = None
 
-    # 1. 로그인한 사용자의 투자성향 찾기
-    investment_profile = get_object_or_404(InvestmentProfile, user=user)
-    profile_type = investment_profile.risk_tolerance
+    if profile_type:
+        stocks = recommend_stocks_by_profile(profile_type)
+    else:
+        stocks = []
 
-    # 2. 추천 종목 가져오기
-    recommended_stocks = recommend_stocks_by_profile(profile_type, count=5)
-
-    return render(request, 'recommend/recommend_list.html', {
-        'stocks': recommended_stocks,
-        'profile_type': profile_type,
-    })
+    return render(request, 'recommend/recommend_list.html', {'stocks': stocks}) 

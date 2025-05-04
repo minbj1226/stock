@@ -1,38 +1,42 @@
-# recommend/management/commands/import_stocks.py
+# recommend/management/commands/import_stock.py
 
 from django.core.management.base import BaseCommand
 import pandas as pd
-from recommend.models import StockFundamental
+from recommend.models import StockFundamental  # 모델 경로 확인 필수
+import os
 
 class Command(BaseCommand):
-    help = '종목코드1.csv와 종목펀더멘탈.csv를 합쳐서 StockFundamental 모델에 저장'
+    help = 'CSV 파일을 읽어 StockFundamental 모델에 저장합니다.'
 
-    def handle(self, *args, **options):
-        # 1. CSV 불러오기
-        basic_df = pd.read_csv('종목코드1.csv')  # ticker, corp_name, market
-        fundamental_df = pd.read_csv('종목펀더멘탈.csv')  # ticker, per, pbr, eps, bps, stck_prpr
+    def handle(self, *args, **kwargs):
+        # BASE_DIR 기준 경로 (settings.py의 BASE_DIR 기준)
+        csv_path = os.path.join("종목데이터.csv")  # 경로 필요 시 수정
 
-        # 2. 필요한 컬럼만 남기고 NaN 데이터는 제외
-        fundamental_df = fundamental_df[['ticker', 'per', 'pbr', 'eps', 'bps', 'stck_prpr']]  # roe, dps, dividend_yield 빼버림
+        try:
+            df = pd.read_csv(csv_path)
 
-        # 3. ticker 기준으로 merge
-        merged_df = pd.merge(basic_df, fundamental_df, on='ticker', how='inner')
+            objs = []
+            for _, row in df.iterrows():
+                if pd.isnull(row['ticker']) or pd.isnull(row['corp_name']) or pd.isnull(row['beta']) or pd.isnull(row['volatility']):
+                    continue
 
-        # 4. DB에 저장
-        save_count = 0
-        for _, row in merged_df.iterrows():
-            StockFundamental.objects.update_or_create(
-                ticker=row['ticker'],
-                defaults={
-                    'corp_name': row['corp_name'],
-                    'market': row['market'],
-                    'stck_prpr': row.get('stck_prpr'),
-                    'per': row.get('per'),
-                    'pbr': row.get('pbr'),
-                    'eps': row.get('eps'),
-                    'bps': row.get('bps'),
-                }
-            )
-            save_count += 1
+                obj = StockFundamental(
+                    ticker=row['ticker'],
+                    corp_name=row['corp_name'],
+                    market=row['market'],
+                    stck_prpr=row['stck_prpr'],
+                    per=row['per'],
+                    pbr=row['pbr'],
+                    eps=row['eps'],
+                    bps=row['bps'],
+                    volatility=row['volatility'],
+                    beta=row['beta'],
+                    market_cap=row['market_cap']
+                )
+                objs.append(obj)
 
-        self.stdout.write(self.style.SUCCESS(f'✅ {save_count}개 종목 저장 완료!'))
+            StockFundamental.objects.bulk_create(objs, ignore_conflicts=True)
+            self.stdout.write(self.style.SUCCESS("✅ DB 저장 완료"))
+
+        except Exception as e:
+            self.stderr.write(self.style.ERROR(f"❌ 오류 발생: {e}"))
