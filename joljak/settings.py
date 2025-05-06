@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'accounts',
     'user_analysis',
     'dashboard',
-    'stocks',
+    'mock_investment',
     'recommend'
 ]
 
