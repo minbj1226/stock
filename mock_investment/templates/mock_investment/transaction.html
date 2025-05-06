@@ -2,29 +2,32 @@
 {% load humanize %}
 
 {% block content %}
-<div class="container my-4" style="max-width: 1100px;">
+<div class="container-fluid my-4">
+  <!-- 상단 종목 차트 및 주문 정보 영역 -->
+  <div class="d-flex flex-column flex-lg-row justify-content-between mb-4">
 
-  <!-- 상단 종목 차트 -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-          <h4 id="selectedStockName" class="fw-bold mb-0">종목명</h4>
-          <span id="stockTicker" class="text-muted">000000</span>
+    <!-- 왼쪽: 종목 차트 -->
+    <div class="card shadow-sm mb-4" style="flex: 3; max-width: 75%; min-height: 500px;">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 id="selectedStockName" class="fw-bold mb-0">종목명</h4>
+            <span id="stockTicker" class="text-muted">000000</span>
+          </div>
+          <div class="text-end">
+            <h4 id="currentPrice" class="fw-bold text-danger">현재가</h4>
+            <span class="text-muted" id="priceChangeInfo">+0원 (+0.00%)</span>
+          </div>
         </div>
-        <div class="text-end">
-          <h4 id="currentPrice" class="fw-bold text-danger">현재가</h4>
-          <span class="text-muted" id="priceChangeInfo">+0원 (+0.00%)</span>
-        </div>
+        <div id="stockChart" style="height: 500px;"></div>
       </div>
-      <div id="stockChart" style="height: 350px;"></div>
     </div>
-  </div>
 
-  <div class="row g-4">
-    <!-- 주문 카드 -->
-    <div class="col-md-5">
-      <div class="card shadow-sm h-100">
+    <!-- 오른쪽: 주문 카드 + 계좌 정보 + 주문 내역 -->
+    <div class="d-flex flex-column w-100" style="flex: 1; max-width: 23%; min-width: 280px;">
+
+      <!-- 주문 카드 -->
+      <div class="card shadow-sm mb-4">
         <div class="card-header fw-bold bg-light">📝 주문하기</div>
         <div class="card-body">
           <form method="post">
@@ -34,11 +37,9 @@
           </form>
         </div>
       </div>
-    </div>
 
-    <!-- 계좌 정보 + 주문내역 -->
-    <div class="col-md-7">
-      <div class="card mb-4 shadow-sm">
+      <!-- 계좌 정보 -->
+      <div class="card shadow-sm mb-4">
         <div class="card-header fw-bold bg-light">📌 계좌 정보</div>
         <div class="card-body">
           <p>계좌 번호: <strong>{{ balance_info.account_number }}</strong></p>
@@ -50,6 +51,7 @@
         </div>
       </div>
 
+      <!-- 주문 내역 -->
       <div class="card shadow-sm">
         <div class="card-header fw-bold bg-light">📜 주문 내역</div>
         <div class="card-body">
@@ -72,7 +74,6 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- 종목 차트 JS -->
@@ -97,23 +98,16 @@
 
         const trace = {
           x: data.date,
-          y: data.close,
-          type: 'scatter',
-          mode: 'lines+markers',
-          line: { shape: 'linear', color: '#FF3B30' },  // 색상은 자유롭게 조정
-          marker: { size: 6 }
+          open: data.open,
+          high: data.high,
+          low: data.low,
+          close: data.close,
+          type: 'candlestick'
         };
 
         const layout = {
-        title: `${stockName} 주가 추이`,
-        xaxis: {
-        title: '날짜',
-        tickformat: '%Y-%m-%d'
-        },
-        yaxis: {
-        title: '종가 (원)'
-        },
-        margin: { t: 40 }
+          margin: { t: 20 },
+          xaxis: { rangeslider: { visible: false } }
         };
 
         Plotly.newPlot("stockChart", [trace], layout, { displayModeBar: false });
@@ -121,4 +115,5 @@
       .catch(err => console.error(err));
   }
 </script>
+
 {% endblock %}
