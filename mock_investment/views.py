@@ -19,10 +19,10 @@ from .models import StockOrder
 #          "python manage.py makemigrations stocks"
 #          "python manage.py migrate"
 
-
 # TODO: 2. 실전 투자는 모의 투자를 주석처리하고 실전 투자 코드를 사용하세요.
 # 한국투자증권 API 인증 객체 로드 (실전 투자)
 kis = PyKis(
+
 )
 
 # TODO: 3. 모의 투자는 실전 투자를 주석처리하고 모의 투자 코드를 사용하세요.
@@ -57,7 +57,7 @@ class StockTransactionView(View):
         }
 
         orders = StockOrder.objects.all().order_by('-created_at')
-        return render(request, "stocks/transaction.html", {
+        return render(request, "mock_investment/transaction.html", {
             "form": form,
             "balance_info": balance_info,
             "orders": orders,
@@ -87,7 +87,7 @@ class StockTransactionView(View):
             
             if not stock_code:
                 messages.error(request, f"❌ 종목명을 찾을 수 없습니다: {stock_name}")
-                return render(request, "stocks/transaction.html", {
+                return render(request, "mock_investment/transaction.html", {
                     "form": form,
                     "balance_info": balance_info,
                 })
@@ -110,10 +110,10 @@ class StockTransactionView(View):
             except Exception as e:
                 messages.error(request, f"❌ 주문 실패: {str(e)}")
             
-            return redirect("stocks:transaction")
+            return redirect("mock_investment:transaction")
 
         orders = StockOrder.objects.all().order_by('-created_at')
-        return render(request, "stocks/transaction.html", {
+        return render(request, "mock_investment/transaction.html", {
             "form": form,
             "balance_info": balance_info,
             "orders": orders,
@@ -131,7 +131,7 @@ def cancel_order(request, order_id):
     except Exception as e:
         messages.error(request, f"❌ 주문 취소 실패: {str(e)}")
 
-    return redirect("stocks:transaction")
+    return redirect("mock_investment:transaction")
 
 def stock_chart_data(request):
     stock_name = request.GET.get("stock_name")

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<div class="container my-4" style="max-width: 1100px;">
+
+  <!-- 상단 종목 차트 -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h4 id="selectedStockName" class="fw-bold mb-0">종목명</h4>
+          <span id="stockTicker" class="text-muted">000000</span>
+        </div>
+        <div class="text-end">
+          <h4 id="currentPrice" class="fw-bold text-danger">현재가</h4>
+          <span class="text-muted" id="priceChangeInfo">+0원 (+0.00%)</span>
+        </div>
+      </div>
+      <div id="stockChart" style="height: 350px;"></div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- 주문 카드 -->
+    <div class="col-md-5">
+      <div class="card shadow-sm h-100">
+        <div class="card-header fw-bold bg-light">📝 주문하기</div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-danger w-100 mt-3">매수하기</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 계좌 정보 + 주문내역 -->
+    <div class="col-md-7">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header fw-bold bg-light">📌 계좌 정보</div>
+        <div class="card-body">
+          <p>계좌 번호: <strong>{{ balance_info.account_number }}</strong></p>
+          <p>예수금: <strong>{{ balance_info.deposits.KRW.amount|floatformat:0|intcomma }}원</strong></p>
+          <p>총 매입 금액: {{ balance_info.purchase_amount|floatformat:0|intcomma }}원</p>
+          <p>현재 평가 금액: {{ balance_info.current_amount|floatformat:0|intcomma }}원</p>
+          <p>총 수익: <span class="{% if balance_info.profit >= 0 %}text-danger{% else %}text-primary{% endif %}">{{ balance_info.profit|floatformat:0|intcomma }}원</span></p>
+          <p>총 수익률: {{ balance_info.profit_rate|floatformat:2 }}%</p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header fw-bold bg-light">📜 주문 내역</div>
+        <div class="card-body">
+          {% if orders %}
+            <ul class="list-group">
+              {% for order in orders %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <span>{{ order.stock_name }} ({{ order.quantity }}주) - {{ order.transaction_type }}</span>
+                  <form action="{% url 'mock_investment:cancel_order' order.id %}" method="post" onsubmit="return confirm('정말 취소하시겠습니까?')">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-secondary">취소</button>
+                  </form>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted">주문 내역이 없습니다.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 종목 차트 JS -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+  const stockInput = document.getElementById("id_stock_name");
+  stockInput.addEventListener("blur", () => loadChart(stockInput.value));
+
+  function loadChart(stockName) {
+    if (!stockName) return;
+    fetch(`/mock_investment/stock_chart_data/?stock_name=${encodeURIComponent(stockName)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+
+        document.getElementById("selectedStockName").textContent = stockName;
+        document.getElementById("stockTicker").textContent = data.ticker || " - ";
+        document.getElementById("currentPrice").textContent = data.close.at(-1).toLocaleString() + "원";
+
+        const trace = {
+          x: data.date,
+          y: data.close,
+          type: 'scatter',
+          mode: 'lines+markers',
+          line: { shape: 'linear', color: '#FF3B30' },  // 색상은 자유롭게 조정
+          marker: { size: 6 }
+        };
+
+        const layout = {
+        title: `${stockName} 주가 추이`,
+        xaxis: {
+        title: '날짜',
+        tickformat: '%Y-%m-%d'
+        },
+        yaxis: {
+        title: '종가 (원)'
+        },
+        margin: { t: 40 }
+        };
+
+        Plotly.newPlot("stockChart", [trace], layout, { displayModeBar: false });
+      })
+      .catch(err => console.error(err));
+  }
+</script>
+{% endblock %}

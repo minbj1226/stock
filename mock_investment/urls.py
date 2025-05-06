@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import StockTransactionView, cancel_order, stock_chart_data
 
-app_name = 'stocks'
+app_name = 'mock_investment'
 
 urlpatterns = [
     path('transaction/', StockTransactionView.as_view(), name='transaction'),

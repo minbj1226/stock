@@ -44,11 +44,15 @@
              href="{% url 'dashboard:dashboard_index' %}">홈</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'stocks:transaction' %}">모의투자</a>
+          <a class="nav-link" href="{% url 'mock_investment:transaction' %}">모의투자</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'user_analysis:intro' %}">투자분석</a>
+          <a class="nav-link" href="{% url 'user_analysis:intro' %}">투자성향 테스트</a>
         </li>
+        <form class="d-flex position-relative" role="search">
+          <input class="form-control rounded-pill px-3" type="search" id="stock-search" placeholder="Search..." aria-label="Search" style="width: 200px;">
+          <ul id="search-results" class="list-group position-absolute mt-5 shadow-sm" style="z-index: 999; width: 200px; display: none;"></ul>
+        </form>
       </ul>
 
       <!-- 로그인 / 프로필 -->
@@ -75,3 +79,49 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<script src="https://unpkg.com/hangul-js@0.2.6/hangul.min.js"></script>
+<script>
+  const stockList = {{ stock_json|safe }};
+  const input = document.getElementById("stock-search");
+  const results = document.getElementById("search-results");
+
+  input.addEventListener("input", function() {
+    const keyword = input.value.trim();
+    if (!keyword) {
+      results.style.display = "none";
+      results.innerHTML = "";
+      return;
+    }
+
+    const matches = stockList.filter(stock =>
+      Hangul.search(stock.corp_name, keyword) >= 0
+    ).slice(0, 5);  // 최대 5개만 표시
+
+    if (matches.length > 0) {
+      results.innerHTML = matches.map(item =>
+        `<li class="list-group-item list-group-item-action">${item.corp_name} (${item.ticker})</li>`
+      ).join("");
+      results.style.display = "block";
+    } else {
+      results.innerHTML = '<li class="list-group-item text-muted">결과 없음</li>';
+      results.style.display = "block";
+    }
+  });
+
+  // 결과 클릭 시 이동 가능 (예: 상세 페이지 링크)
+  results.addEventListener("click", function(e) {
+    if (e.target.tagName === "LI") {
+      const text = e.target.textContent;
+      alert(`${text} 클릭됨`);
+      // 예: window.location.href = `/stocks/detail/${ticker}/`
+    }
+  });
+
+  // 입력 외 클릭 시 닫기
+  document.addEventListener("click", function(e) {
+    if (!input.contains(e.target) && !results.contains(e.target)) {
+      results.style.display = "none";
+    }
+  });
+</script>
