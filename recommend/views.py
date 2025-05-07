@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from recommend.services import recommend_stocks_by_profile
 from accounts.models import InvestmentProfile
+from .models import StockFundamental
+from django.http import JsonResponse
 
 def recommend_view(request):
     user = request.user
@@ -14,4 +16,4 @@ def recommend_view(request):
     else:
         stocks = []
 
-    return render(request, 'recommend/recommend_list.html', {'stocks': stocks}) 
+    return render(request, 'recommend/recommend_list.html', {'stocks': stocks})

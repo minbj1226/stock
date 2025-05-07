@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- 주식 상세 정보 -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">{{ stock.corp_name }} ({{ stock.ticker }})</h2>
+                    <p class="card-text"><strong>시가:</strong> {{ stock.stck_prpr }} 원</p>
+                    <p class="card-text"><strong>P/E 비율:</strong> {{ stock.per }}</p>
+                    <p class="card-text"><strong>PBR:</strong> {{ stock.pbr }}</p>
+                    <p class="card-text"><strong>EPS:</strong> {{ stock.eps }}</p>
+                    <p class="card-text"><strong>배당금:</strong> {{ stock.bps }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 매출 · 산업 구성 (차트 이미지 등) -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">매출 · 산업 구성</h5>
+                    <!-- 차트 등 추가 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

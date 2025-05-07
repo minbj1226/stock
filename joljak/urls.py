@@ -22,5 +22,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('user_analysis/', include('user_analysis.urls')),
     path('mock_investment/', include('mock_investment.urls')),
-    path('recommend/', include('recommend.urls'))
+    path('recommend/', include('recommend.urls')),
+    path('stocks/', include('stocks.urls'))
 ]
