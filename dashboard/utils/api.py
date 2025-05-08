@@ -27,23 +27,23 @@ def get_market_indices():
         "2001": "코스피200"
     }
 
-    url = "https://openapivts.koreainvestment.com:29443/uapi/domestic-stock/v1/quotations/inquire-daily-indexchartprice"
+
+    url = "https://openapi.koreainvestment.com:9443/uapi/domestic-stock/v1/quotations/inquire-index-daily-price"
     headers = {
         "content-type": "application/json",
-        "authorization": f"Bearer {ACCESS_TOKEN.get_token()}",
-        "appkey": settings.APP_KEY,
-        "appsecret": settings.APP_SECRET,
-        "tr_id": "FHKUP03500100"
+        "authorization": f"Bearer {ACCESS_LIVE_TOKEN.get_token()}",
+        "appkey": settings.APP_LIVE_KEY,
+        "appsecret": settings.APP_LIVE_SECRET,
+        "tr_id": "FHPUP02120000"
     }
 
     market_data = []
     for iscd, name in indices.items():
         params = {
-            "fid_cond_mrkt_div_code": "U",
-            "fid_input_date_1": "20250310",
-            "fid_input_date_2": "20250624",
-            "fid_input_iscd": iscd,
-            "fid_period_div_code": "D"
+            "FID_COND_MRKT_DIV_CODE": "U",
+            "FID_INPUT_DATE_1": "20250508",
+            "FID_INPUT_ISCD": iscd,
+            "FID_PERIOD_DIV_CODE": "D"
         }
 
         response = requests.get(url, headers=headers, params=params)
