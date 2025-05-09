@@ -1,31 +1,106 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <!-- 주식 상세 정보 -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-body">
-                    <h2 class="card-title">{{ stock.corp_name }} ({{ stock.ticker }})</h2>
-                    <p class="card-text"><strong>시가:</strong> {{ stock.stck_prpr }} 원</p>
-                    <p class="card-text"><strong>P/E 비율:</strong> {{ stock.per }}</p>
-                    <p class="card-text"><strong>PBR:</strong> {{ stock.pbr }}</p>
-                    <p class="card-text"><strong>EPS:</strong> {{ stock.eps }}</p>
-                    <p class="card-text"><strong>배당금:</strong> {{ stock.bps }}</p>
-                </div>
-            </div>
-        </div>
 
-        <!-- 매출 · 산업 구성 (차트 이미지 등) -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">매출 · 산업 구성</h5>
-                    <!-- 차트 등 추가 -->
-                </div>
-            </div>
-        </div>
+<div class="container mt-4">
+
+  <!-- 시장/섹터/산업 -->
+  <div class="mb-2 text-muted small">
+    <span class="badge bg-success me-1">{{ stock.market }}</span>
+  </div>
+
+  <!-- 종목명 / 티커 -->
+  <div class="d-flex align-items-end justify-content-between mb-2">
+  <!-- 왼쪽: 종목명, 영문명, 티커 -->
+  <div>
+    <h4 class="mb-0 fw-bold">{{ stock.corp_name }}</h4>
+    <small class="text-muted">{{ stock.ticker }}</small>
+  </div>
+
+  <!-- 오른쪽: 현재가 -->
+  <div class="text-end">
+    <div class="fw-bold" style="font-size: 22px;">
+      {{ stock.stck_prpr|intcomma }}원
     </div>
+    {% if stock.change %}
+      <div class="{% if stock.change > 0 %}text-danger{% elif stock.change < 0 %}text-primary{% else %}text-muted{% endif %}" style="font-size: 14px;">
+        {% if stock.change > 0 %}+{% endif %}{{ stock.change|intcomma }}원 ({{ stock.change_rate|floatformat:2 }}%)
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+  <!-- 지표 -->
+  <div class="d-flex gap-4 text-center border-top border-bottom py-2 mt-3">
+  <div>
+    <div class="fw-bold">
+      <span class="fw-bold" data-bs-toggle="tooltip" title="PER(주가수익비율): 주가 ÷ 주당순이익(EPS). 낮을수록 저평가 가능성.">PER</span>
+    </div>
+    <div>{{ stock.per }}</div>
+  </div>
+
+  <div>
+    <div class="fw-bold">
+      <span class="fw-bold" data-bs-toggle="tooltip" title="PBR(주가순자산비율): 주가 ÷ 주당순자산(BPS). 1보다 낮으면 자산 대비 저평가.">PBR</span>
+    </div>
+    <div>{{ stock.pbr }}</div>
+  </div>
+
+  <div>
+    <div class="fw-bold">
+      <span class="fw-bold" data-bs-toggle="tooltip" title="EPS(주당순이익): 기업의 순이익을 주식 수로 나눈 값. 높을수록 수익성 좋음.">EPS</span>
+    </div>
+    <div>{{ stock.eps|floatformat:2|intcomma }}</div>
+  </div>
+
+  <div>
+    <div class="fw-bold">
+      <span class="fw-bold" data-bs-toggle="tooltip" title="BPS(주당순자산): 기업의 자산가치를 주식 수로 나눈 값. PBR 계산에 사용됨.">BPS</span>
+    </div>
+    <div>{{ stock.bps|floatformat:2|intcomma }}</div>
+  </div>
+</div>
+
+  <div class="mt-4">
+  <canvas id="stockChart" height="100"></canvas>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  fetch("/stocks/api/chart/{{ stock.ticker }}/")
+    .then(res => res.json())
+    .then(data => {
+      const ctx = document.getElementById("stockChart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: data.date,
+          datasets: [{
+            label: "{{ stock.corp_name }} 종가",
+            data: data.close,
+            borderColor: "rgb(75, 192, 192)",
+            tension: 0.2,
+            pointRadius: 0,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: { title: { display: false } },
+            y: { title: { display: false } }
+          }
+        }
+      });
+    });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const tooltipList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipList.forEach(function (el) {
+      new bootstrap.Tooltip(el);
+    });
+  });
+</script>
 </div>
 {% endblock %}

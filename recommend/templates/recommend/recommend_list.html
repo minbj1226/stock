@@ -27,9 +27,9 @@
         <tr>
           <td>{{ forloop.counter }}</td>
           <td>
-            <a href="https://finance.naver.com/item/main.naver?code={{ stock.ticker }}"
+            <a href="{% url 'stocks:stock_detail' stock.ticker %}" ,
                target="_blank" class="text-decoration-none fw-bold">
-              {{ stock.corp_name }}
+                {{ stock.corp_name }}
             </a>
           </td>
           <td>{{ stock.stck_prpr|intcomma }}원</td>
