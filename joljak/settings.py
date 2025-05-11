@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'user_analysis',
     'dashboard',
     'mock_investment',
-    'recommend'
+    'recommend',
+    'stocks',
+    'mypage'
 ]
 
 MIDDLEWARE = [
@@ -140,3 +142,4 @@ AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
