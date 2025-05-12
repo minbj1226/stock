@@ -2,7 +2,6 @@
 {% load humanize %}
 
 {% block content %}
-
 <div class="container mt-4">
 
   <!-- 시장/섹터/산업 -->
@@ -12,93 +11,140 @@
 
   <!-- 종목명 / 티커 -->
   <div class="d-flex align-items-end justify-content-between mb-2">
-  <!-- 왼쪽: 종목명, 영문명, 티커 -->
-  <div>
-    <h4 class="mb-0 fw-bold">{{ stock.corp_name }}</h4>
-    <small class="text-muted">{{ stock.ticker }}</small>
-  </div>
-
-  <!-- 오른쪽: 현재가 -->
-  <div class="text-end">
-    <div class="fw-bold" style="font-size: 22px;">
-      {{ stock.stck_prpr|intcomma }}원
+    <!-- 왼쪽: 종목명, 티커 -->
+    <div>
+      <h4 class="mb-0 fw-bold">{{ stock.corp_name }}</h4>
+      <small class="text-muted">{{ stock.ticker }}</small>
     </div>
-    {% if stock.change %}
-      <div class="{% if stock.change > 0 %}text-danger{% elif stock.change < 0 %}text-primary{% else %}text-muted{% endif %}" style="font-size: 14px;">
-        {% if stock.change > 0 %}+{% endif %}{{ stock.change|intcomma }}원 ({{ stock.change_rate|floatformat:2 }}%)
+
+    <!-- 오른쪽: 현재가 -->
+    <div class="text-end">
+      <div class="fw-bold" style="font-size: 22px;">
+        {{ stock.stck_prpr|intcomma }}원
       </div>
-    {% endif %}
+      {% if stock.change %}
+        <div class="{% if stock.change > 0 %}text-danger{% elif stock.change < 0 %}text-primary{% else %}text-muted{% endif %}" style="font-size: 14px;">
+          {% if stock.change > 0 %}+{% endif %}{{ stock.change|intcomma }}원 ({{ stock.change_rate|floatformat:2 }}%)
+        </div>
+      {% endif %}
+    </div>
   </div>
-</div>
 
   <!-- 지표 -->
   <div class="d-flex gap-4 text-center border-top border-bottom py-2 mt-3">
-  <div>
-    <div class="fw-bold">
-      <span class="fw-bold" data-bs-toggle="tooltip" title="PER(주가수익비율): 주가 ÷ 주당순이익(EPS). 낮을수록 저평가 가능성.">PER</span>
+    <div>
+      <div class="fw-bold">
+        <span class="fw-bold" data-bs-toggle="tooltip" title="PER(주가수익비율): 주가 ÷ 주당순이익(EPS). 낮을수록 저평가 가능성.">PER</span>
+      </div>
+      <div>{{ stock.per }}</div>
     </div>
-    <div>{{ stock.per }}</div>
+
+    <div>
+      <div class="fw-bold">
+        <span class="fw-bold" data-bs-toggle="tooltip" title="PBR(주가순자산비율): 주가 ÷ 주당순자산(BPS). 1보다 낮으면 자산 대비 저평가.">PBR</span>
+      </div>
+      <div>{{ stock.pbr }}</div>
+    </div>
+
+    <div>
+      <div class="fw-bold">
+        <span class="fw-bold" data-bs-toggle="tooltip" title="EPS(주당순이익): 기업의 순이익을 주식 수로 나눈 값. 높을수록 수익성 좋음.">EPS</span>
+      </div>
+      <div>{{ stock.eps|floatformat:2|intcomma }}</div>
+    </div>
+
+    <div>
+      <div class="fw-bold">
+        <span class="fw-bold" data-bs-toggle="tooltip" title="BPS(주당순자산): 기업의 자산가치를 주식 수로 나눈 값. PBR 계산에 사용됨.">BPS</span>
+      </div>
+      <div>{{ stock.bps|floatformat:2|intcomma }}</div>
+    </div>
   </div>
 
-  <div>
-    <div class="fw-bold">
-      <span class="fw-bold" data-bs-toggle="tooltip" title="PBR(주가순자산비율): 주가 ÷ 주당순자산(BPS). 1보다 낮으면 자산 대비 저평가.">PBR</span>
-    </div>
-    <div>{{ stock.pbr }}</div>
+  <!-- 차트 -->
+  <div class="mt-4">
+    <div id="priceChart" style="width: 100%; height: 300px;"></div>
+  </div>
+  <div class="mt-2">
+    <div id="volumeChart" style="width: 100%; height: 100px;"></div>
   </div>
 
-  <div>
-    <div class="fw-bold">
-      <span class="fw-bold" data-bs-toggle="tooltip" title="EPS(주당순이익): 기업의 순이익을 주식 수로 나눈 값. 높을수록 수익성 좋음.">EPS</span>
-    </div>
-    <div>{{ stock.eps|floatformat:2|intcomma }}</div>
+  <!-- 뉴스 영역 -->
+  <div class="mt-5">
+    <h5 class="fw-bold mb-3">{{ stock.corp_name }} 뉴스</h5>
+    <div id="stockNews" class="d-flex flex-column gap-3"></div>
   </div>
 
-  <div>
-    <div class="fw-bold">
-      <span class="fw-bold" data-bs-toggle="tooltip" title="BPS(주당순자산): 기업의 자산가치를 주식 수로 나눈 값. PBR 계산에 사용됨.">BPS</span>
-    </div>
-    <div>{{ stock.bps|floatformat:2|intcomma }}</div>
-  </div>
 </div>
 
-  <div class="mt-4">
-  <canvas id="stockChart" height="100"></canvas>
-  </div>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  fetch("/stocks/api/chart/{{ stock.ticker }}/")
-    .then(res => res.json())
-    .then(data => {
-      const ctx = document.getElementById("stockChart").getContext("2d");
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: data.date,
-          datasets: [{
-            label: "{{ stock.corp_name }} 종가",
-            data: data.close,
-            borderColor: "rgb(75, 192, 192)",
-            tension: 0.2,
-            pointRadius: 0,
-            fill: false
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            x: { title: { display: false } },
-            y: { title: { display: false } }
-          }
-        }
-      });
-    });
+fetch("/stocks/api/chart/{{ stock.ticker }}/")
+  .then(res => res.json())
+  .then(data => {
+    const { date, open, high, low, close, volume } = data;
 
-  document.addEventListener('DOMContentLoaded', function () {
-    const tooltipList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipList.forEach(function (el) {
-      new bootstrap.Tooltip(el);
+    const traceCandle = {
+      x: date,
+      open: open,
+      high: high,
+      low: low,
+      close: close,
+      type: 'candlestick',
+      name: '',
+      xaxis: 'x',
+      yaxis: 'y1',
+      increasing: { line: { color: '#d33f3f' } },
+      decreasing: { line: { color: '#377bd2' } }
+    };
+
+    const traceVolume = {
+      x: date,
+      y: volume,
+      type: 'bar',
+      name: '',
+      yaxis: 'y2',
+      marker: {
+        color: close.map((c, i) =>
+          c >= open[i] ? 'rgba(211, 63, 63, 0.5)' : 'rgba(55, 123, 210, 0.5)'
+        )
+      }
+    };
+
+    const layout = {
+      height: 500,
+      margin: { t: 10, b: 40, l: 40, r: 10 },
+      xaxis: {
+        type: 'date',
+        tickformat: '%-m월',
+        dtick: 'M1',
+        tickangle: 0,
+        ticks: 'outside',
+        ticklen: 4,
+        tickfont: { size: 11 },
+        showticklabels: true,
+        showgrid: false,
+        rangeslider: { visible: false }
+      },
+      yaxis: {
+        domain: [0.35, 1],
+        showgrid: true,
+        tickfont: { size: 10 },
+      },
+      yaxis2: {
+        domain: [0, 0.25],
+        showgrid: false,
+        tickfont: { size: 10 }
+      },
+      showlegend: false,
+      plot_bgcolor: '#ffffff',
+      paper_bgcolor: '#ffffff'
+    };
+
+    Plotly.newPlot('priceChart', [traceCandle, traceVolume], layout, {
+      displayModeBar: false,
+      responsive: true
     });
   });
 </script>

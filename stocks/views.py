@@ -45,3 +45,4 @@ def stock_search(request):
 def stock_detail(request, ticker):
     stock = get_object_or_404(StockFundamental, ticker=ticker)
     return render(request, 'stocks/stock_detail.html', {'stock': stock})
+
