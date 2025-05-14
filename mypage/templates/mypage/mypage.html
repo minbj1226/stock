@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block content %}
 <div class="container mt-5">
@@ -18,21 +19,60 @@
 
     <div class="mt-3">
       {% if investment_type == '공격투자형' %}
-        <p>📈 높은 수익률을 추구하며 리스크도 감수하는 성향입니다.</p>
-      {% elif investment_type == '안정형' %}
-        <p>💼 원금 보전을 중요시하며 안정적 자산 운용을 선호합니다.</p>
+      <p>📈 시장 평균 이상의 높은 수익을 추구하며, 손실 위험도 적극 감수하는 성향입니다.</p>
       {% elif investment_type == '적극투자형' %}
-        <p>🚀 공격보다는 다소 완화된 수익 추구 성향으로, 성장 가능성 높은 자산에 관심이 많습니다.</p>
+      <p>🚀 일정 수준의 위험을 감내하고 비교적 높은 수익을 실현하려는 성향입니다.</p>
       {% elif investment_type == '위험중립형' %}
-        <p>⚖️ 수익성과 안정성을 균형 있게 고려하는 성향입니다.</p>
+      <p>⚖️ 수익과 위험 사이에서 균형을 추구하며, 경우에 따라 일정 수준의 손실을 감수할 수 있습니다.</p>
       {% elif investment_type == '안정추구형' %}
-        <p>🔒 위험은 피하고 중간 수준의 수익을 기대하는 신중한 투자자입니다.</p>
+      <p>🔒 큰 손실은 피하면서도 예·적금보다 나은 수익을 기대하는 성향입니다.</p>
+      {% elif investment_type == '안정형' %}
+      <p>💼 자산 손실을 원치 않으며, 예금 수준의 안정적인 수익을 기대하는 성향입니다.</p>
       {% else %}
-        <p>⚠️ 성향 정보가 등록되지 않았습니다.</p>
+      <p>⚠️ 성향 정보가 등록되지 않았습니다.</p>
       {% endif %}
     </div>
-
     <a href="{% url 'user_analysis:intro' %}" class="btn btn-outline-primary mt-4">투자 성향 다시 테스트하기</a>
   </div>
+
+  <div class="mt-5">
+  <h4 class="fw-bold mb-3">📊 모의투자 종목 결과</h4>
+
+  {% if mock_results %}
+    <div class="table-responsive">
+      <table class="table table-bordered text-center align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>순위</th>
+            <th>종목명</th>
+            <th>보유 수량</th>
+            <th>매입가</th>
+            <th>현재가</th>
+            <th>평가손익</th>
+            <th>수익률</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in mock_results %}
+          <tr>
+            <td>{{ result.rank }}</td>
+            <td>{{ result.stock_name }}</td>
+            <td>{{ result.quantity }}</td>
+            <td>{{ result.buy_price|intcomma }}원</td>
+            <td>{{ result.current_price|intcomma }}원</td>
+            <td class="{% if result.profit >= 0 %}text-danger{% else %}text-primary{% endif %}">
+              {{ result.profit|intcomma }}원
+            </td>
+            <td>{{ result.profit_rate|floatformat:2 }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted">현재 모의투자 종목 결과가 없습니다.</p>
+  {% endif %}
+  </div>
+
 </div>
 {% endblock %}

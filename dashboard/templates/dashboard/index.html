@@ -32,14 +32,16 @@
                         <h5 class="fw-bold">{{ market.name }}</h5>
                         {% if market.current_price %}
                             <div class="text-center">
-                                <p class="text-primary fs-5 fw-bold mb-0">{{ market.current_price|intcomma }}</p>
+                                <p class="text-dark fs-5 fw-bold mb-0">
+                                    {{ market.current_price|intcomma }}
+                                </p>
                                 <p class="mb-2 toss-font">
                                     <span class="{% if market.trend == 'up' %}text-danger{% elif market.trend == 'down' %}text-blue{% else %}text-muted{% endif %}">
                                         {{ market.price_change }} ({{ market.change_rate }})
                                     </span>
                                 </p>
                             </div>
-                            <canvas id="{{ market.name }}Chart" height="200"></canvas>
+                        <canvas id="{{ market.name }}Chart" height="200"></canvas>
                         {% else %}
                             <p class="text-muted">데이터 없음</p>
                         {% endif %}
@@ -155,6 +157,16 @@
     const chartConfigs = {{ market_data|safe }};
 
     chartConfigs.forEach(market => {
+        const lineColor =
+            market.trend === 'up' ? 'rgba(220, 53, 69, 1)' :
+            market.trend === 'down' ? 'rgba(13, 110, 253, 1)' :
+            'rgba(108, 117, 125, 1)';
+
+        const bgColor =
+            market.trend === 'up' ? 'rgba(220, 53, 69, 0.2)' :
+            market.trend === 'down' ? 'rgba(13, 110, 253, 0.2)' :
+            'rgba(108, 117, 125, 0.2)';
+
         const ctx = document.getElementById(`${market.name}Chart`).getContext('2d');
         new Chart(ctx, {
             type: 'line',
@@ -163,8 +175,8 @@
                 datasets: [{
                     label: market.name,
                     data: market.chart_data,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: lineColor,
+                    backgroundColor: bgColor,
                     tension: 0.3,
                     pointRadius: 2
                 }]

@@ -58,13 +58,15 @@ def get_market_indices():
             price_change = float(output1.get("bstp_nmix_prdy_vrss", 0))
             change_rate = float(output1.get("bstp_nmix_prdy_ctrt", 0))
             direction = "▲" if output1.get("prdy_vrss_sign") == "2" else "▼"
+            trend = 'up' if direction == '▲' else 'down'
 
             market_data.append({
                 "name": name,
                 "current_price": current_price,
                 "price_change": f"{direction} {price_change}",
                 "change_rate": f"{change_rate}%",
-                "chart_data": chart_data
+                "chart_data": chart_data,
+                "trend": trend
             })
 
     return market_data

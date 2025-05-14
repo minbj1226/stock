@@ -3,6 +3,9 @@ from recommend.models import StockFundamental
 from django.http import JsonResponse
 from datetime import datetime, timedelta
 from pykrx import stock
+import requests
+from django.conf import settings
+
 def stock_chart_api(request, ticker):
     today = datetime.today().strftime('%Y%m%d')
     three_years_ago = (datetime.today() - timedelta(days=1080)).strftime('%Y%m%d')
@@ -44,5 +47,26 @@ def stock_search(request):
 
 def stock_detail(request, ticker):
     stock = get_object_or_404(StockFundamental, ticker=ticker)
-    return render(request, 'stocks/stock_detail.html', {'stock': stock})
+    news = get_stock_news(stock.corp_name)
+    return render(request, 'stocks/stock_detail.html', {
+        'stock': stock,
+        'news': news
+    })
 
+def get_stock_news(query="주식", display=10):
+    url = "https://openapi.naver.com/v1/search/news.json"
+    headers = {
+        "X-Naver-Client-Id": settings.NAVER_CLIENT_ID,
+        "X-Naver-Client-Secret": settings.NAVER_CLIENT_SECRET
+    }
+    params = {
+        "query": query + " 주식",  # ex: "삼성전자 주식"
+        "display": display,
+        "sort": "date"
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code == 200:
+        return response.json().get("items", [])
+    return []
