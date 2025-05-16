@@ -36,7 +36,7 @@
                                     {{ market.current_price|intcomma }}
                                 </p>
                                 <p class="mb-2 toss-font">
-                                    <span class="{% if market.trend == 'up' %}text-danger{% elif market.trend == 'down' %}text-blue{% else %}text-muted{% endif %}">
+                                    <span class="{% if market.trend == 'up' %}text-danger{% elif market.trend == 'down' %}text-primary{% else %}text-muted{% endif %}">
                                         {{ market.price_change }} ({{ market.change_rate }})
                                     </span>
                                 </p>

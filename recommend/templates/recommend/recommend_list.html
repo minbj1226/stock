@@ -1,14 +1,63 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% load static %}
+
+{% block head %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="{% static 'css/recommendation.css' %}">
+
+<style>
+  .sky-blue-header th {
+    background-color: #87CEEB !important;
+    color: #ffffff !important;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-  <h2 class="mb-4">📋 추천 종목 목록</h2>
+  <h2 class="mb-4 text-primary">📈 추천 종목 TOP 5</h2>
 
-  {% if stocks %}
+  {% if top5 %}
+  <div class="table-responsive mb-4">
+    <table class="table table-bordered table-striped text-center align-middle">
+      <thead class="sky-blue-header">
+        <tr>
+          <th>순위</th>
+          <th>종목명</th>
+          <th>현재가</th>
+          <th>시장</th>
+          <th>시가총액</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stock in top5 %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>
+            <a href="{% url 'stocks:stock_detail' stock.ticker %}">
+              {{ stock.corp_name }}
+            </a>
+          </td>
+          <td>{{ stock.stck_prpr|intcomma }}원</td>
+          <td>{{ stock.market }}</td>
+          <td>{{ stock.market_cap|intcomma }}원</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted">상위 추천 종목이 없습니다.</p>
+  {% endif %}
+
+  <h2 class="mb-4 text-secondary">📋 전체 추천 종목 목록</h2>
+
+  {% if others %}
   <div class="table-responsive">
-    <table class="table table-hover align-middle text-center">
-      <thead class="table-light">
+    <table id="recommend-table" class="display table table-striped text-center" style="width:100%">
+      <thead class="sky-blue-header">
         <tr>
           <th>순위</th>
           <th>종목명</th>
@@ -23,13 +72,12 @@
         </tr>
       </thead>
       <tbody>
-        {% for stock in stocks %}
+        {% for stock in others %}
         <tr>
-          <td>{{ forloop.counter }}</td>
+          <td>{{ forloop.counter0|add:6 }}</td>
           <td>
-            <a href="{% url 'stocks:stock_detail' stock.ticker %}" ,
-               target="_blank" class="text-decoration-none fw-bold">
-                {{ stock.corp_name }}
+            <a href="{% url 'stocks:stock_detail' stock.ticker %}">
+              {{ stock.corp_name }}
             </a>
           </td>
           <td>{{ stock.stck_prpr|intcomma }}원</td>
@@ -46,9 +94,36 @@
     </table>
   </div>
   {% else %}
-    <p class="text-muted">추천할 종목이 없습니다.</p>
+  <p class="text-muted">추천할 종목이 없습니다.</p>
   {% endif %}
 
-  <a href="/" class="btn btn-outline-secondary mt-4">홈으로</a>
+  <div class="mt-4 text-end">
+    <a href="/" class="btn btn-outline-secondary">홈으로</a>
+  </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<!-- jQuery & DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $('#recommend-table').DataTable({
+      pageLength: 15,
+      lengthChange: false,
+      ordering: true,
+      info: false,
+      language: {
+        search: "검색:",
+        paginate: {
+          previous: "이전",
+          next: "다음"
+        },
+        emptyTable: "추천 종목이 없습니다."
+      }
+    });
+  });
+</script>
 {% endblock %}

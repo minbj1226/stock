@@ -107,7 +107,18 @@
 
         const layout = {
           margin: { t: 20 },
-          xaxis: { rangeslider: { visible: false } }
+          xaxis: {
+          type: 'date',  // ✅ 중요: 날짜 간격대로 표시
+          rangeslider: { visible: false },
+          tickformat: "%m/%d",
+          tickfont: { size: 11 }
+          },
+          yaxis: {
+          tickformat: ",d",
+          ticksuffix: "원"
+          },
+          plot_bgcolor: "#ffffff",
+          paper_bgcolor: "#ffffff"
         };
 
         Plotly.newPlot("stockChart", [trace], layout, { displayModeBar: false });
