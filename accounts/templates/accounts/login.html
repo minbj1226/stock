@@ -1,8 +1,88 @@
 {% extends "base.html" %}
 {% load static %}
-    {% block head %}
-      <link rel="stylesheet" href="{% static 'css/login.css' %}">
-    {% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, #faf9ff, #e9e6ff) !important;
+  }
+
+  .login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  }
+
+  .login-container h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #4b0082;
+    font-weight: 700;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 0.6rem;
+    border: none;
+    background: linear-gradient(to right, #7f61d6, #678ef2);
+    color: #fff;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: background 0.3s;
+  }
+
+  button[type="submit"]:hover {
+    background: linear-gradient(to right, #6d52cb, #507dd6);
+  }
+
+  .signup-link {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.95rem;
+  }
+
+  .signup-link a {
+    color: #4b0082;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .signup-link a:hover {
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
 
 
 {% block content %}

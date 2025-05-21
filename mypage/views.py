@@ -19,4 +19,5 @@ def mypage(request):
         'investment_type': profile.risk_tolerance,
         'last_test_date': localtime(last_answer.submitted_at) if last_answer else None,
         'balance_info': balance_info,
+        "mock_results": balance_info["stocks"]
     })

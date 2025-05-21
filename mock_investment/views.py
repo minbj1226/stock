@@ -21,7 +21,7 @@ from .models import StockOrder
 
 
 
-
+# 자산 표시시
 def get_balance_info():
     balance = kis.account().balance()
 
@@ -29,6 +29,19 @@ def get_balance_info():
     current_amount = balance.current_amount or 0
     profit = current_amount - purchase_amount
     profit_rate = (profit / purchase_amount) * 100 if purchase_amount else 0
+
+    stock_details = [
+        {
+            "symbol": stock.symbol,
+            "stock_name": stock.name,
+            "qty": stock.qty,
+            "purchase_price": stock.purchase_price,
+            "current_price": stock.current_price,
+            "profit": stock.profit,
+            "profit_rate": stock.profit_rate,
+        }
+        for stock in balance.stocks
+    ]
 
     return {
         "account_number": balance.account_number.number,
@@ -38,17 +51,29 @@ def get_balance_info():
         "purchase_amount": purchase_amount,
         "current_amount": current_amount,
         "profit": profit,
-        "profit_rate": profit_rate
+        "profit_rate": profit_rate,
+        "stocks": stock_details
     }
 
 
+# 장 운영 시간
+def is_market_open():
+    trading_hours = kis.trading_hours("KR")
+    now_kst = datetime.now().time()
+
+    open_time = trading_hours.open_kst  # 이미 time 객체
+    close_time = trading_hours.close_kst
+
+    return open_time <= now_kst <= close_time
+
+
 # TODO: 4. 로그인 기능을 사용하고 싶다면 아래 주석을 해제하세요.
-# @method_decorator(login_required, name='dispatch')
+@method_decorator(login_required, name='dispatch')
 class StockTransactionView(View):
     def get(self, request):
         form = StockTransactionForm()
         balance_info = get_balance_info()
-        orders = StockOrder.objects.all().order_by('-created_at')
+        orders = StockOrder.objects.filter().order_by('-created_at')
 
         return render(request, "mock_investment/transaction.html", {
             "form": form,
@@ -59,6 +84,15 @@ class StockTransactionView(View):
     def post(self, request):
         form = StockTransactionForm(request.POST)
         balance_info = get_balance_info()
+
+        if not is_market_open():
+            messages.error(request, "❌ 현재는 장이 열려 있지 않습니다. 거래는 09:00~15:30에만 가능합니다.")
+            orders = StockOrder.objects.filter(user=request.user).order_by('-created_at')
+            return render(request, "mock_investment/transaction.html", {
+                "form": form,
+                "balance_info": balance_info,
+                "orders": orders,
+            })
 
         if form.is_valid():
             stock_name = form.cleaned_data['stock_name']
@@ -79,6 +113,7 @@ class StockTransactionView(View):
                 if transaction_type == 'buy':
                     order = stock.buy(qty=quantity)
                     StockOrder.objects.create(
+                        user=request.user,
                         stock_code=stock_code,
                         stock_name=stock_name,
                         quantity=quantity,
@@ -117,6 +152,7 @@ def cancel_order(request, order_id):
     return redirect("mock_investment:transaction")
 
 
+# 그래프 표시
 def stock_chart_data(request):
     stock_name = request.GET.get("stock_name")
     if not stock_name:
@@ -128,7 +164,7 @@ def stock_chart_data(request):
             return JsonResponse({"error": "해당 종목을 찾을 수 없습니다."}, status=404)
 
         end = datetime.today()
-        start = end - timedelta(days=30)
+        start = end - timedelta(days=1080)
         df = stock.get_market_ohlcv_by_date(
             start.strftime("%Y%m%d"), end.strftime("%Y%m%d"), stock_code
         )
@@ -136,14 +172,25 @@ def stock_chart_data(request):
         df.reset_index(inplace=True)
         df["date"] = df["날짜"].dt.strftime("%Y-%m-%d")
 
+        close_prices = df["종가"].tolist()
+        latest_close = close_prices[-1]
+        previous_close = close_prices[-2] if len(close_prices) > 1 else latest_close
+
+        price_change = latest_close - previous_close
+        percent_change = (price_change / previous_close) * 100 if previous_close else 0
+
         chart_data = {
+            "ticker": stock_code,
             "date": df["date"].tolist(),
             "open": df["시가"].tolist(),
             "high": df["고가"].tolist(),
             "low": df["저가"].tolist(),
-            "close": df["종가"].tolist(),
+            "close": close_prices,
+            "volume": df["거래량"].tolist(),
+            "latest_price": latest_close,
+            "price_change": price_change,
+            "percent_change": percent_change,
         }
-
         return JsonResponse(chart_data)
 
     except Exception as e:

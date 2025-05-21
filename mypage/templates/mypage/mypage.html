@@ -51,7 +51,7 @@
 
         <!-- 총 수익 -->
         <div class="col-md-4 border-end">
-          <p class="mb-1 text-muted">총 수익</p>
+          <p class="mb-1 text-muted">평가 손익</p>
           <h5 class="fw-bold {% if balance_info.profit >= 0 %}text-danger{% else %}text-primary{% endif %}">
             {{ balance_info.profit|floatformat:0|intcomma }} 원
           </h5>
@@ -87,9 +87,8 @@
           <tbody>
             {% for result in mock_results %}
             <tr>
-              <td class="text-start ps-3">
+              <td class="text-center">
                 <div class="fw-semibold">{{ result.stock_name }}</div>
-                <div class="text-muted small">현금</div>
               </td>
               <td class="text-nowrap">
                 <div class="{% if result.profit >= 0 %}text-danger{% else %}text-primary{% endif %} fw-semibold">
@@ -99,11 +98,10 @@
                   {{ result.profit_rate|floatformat:2 }}%
                 </div>
               </td>
-              <td>{{ result.quantity }}주</td>
-              <td>{{ result.buy_price|intcomma }}원</td>
+              <td>{{ result.qty }}주</td>
+              <td>{{ result.purchase_price|intcomma }}원</td>
               <td class="text-nowrap">
                 <div class="fw-semibold">{{ result.current_price|intcomma }}원</div>
-                <div class="small text-primary">{{ result.current_price|intcomma }}</div>
               </td>
             </tr>
             {% endfor %}
