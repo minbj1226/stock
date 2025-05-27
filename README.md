@@ -11,7 +11,7 @@
 | Backend    | Python, Django                     |
 | Frontend   | HTML, CSS, Bootstrap               |
 | Database   | SQLite                             |
-| Chart      | Chart.js                           |
+| Chart      | Plotly.js                           |
 | API 활용    | 한국투자증권 OpenAPI, PyKIS, 네이버뉴스 API  |
 | 개발 환경  | PyCharm, GitHub, Visual Studio Code   |
 
