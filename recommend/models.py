@@ -4,7 +4,7 @@ class StockFundamental(models.Model):
     ticker = models.CharField(max_length=10, unique=True)
     corp_name = models.CharField(max_length=100)
     market = models.CharField(max_length=10)
-
+    sector = models.CharField(max_length=100, null=True, blank=True)
     stck_prpr = models.IntegerField(null=True, blank=True)  # 현재가
     per = models.FloatField(null=True, blank=True)
     pbr = models.FloatField(null=True, blank=True)

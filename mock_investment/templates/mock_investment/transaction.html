@@ -14,7 +14,7 @@
             <span id="stockTicker" class="text-muted">000000</span>
           </div>
           <div class="text-end">
-            <h4 id="currentPrice" class="fw-bold">현재가</h4>
+            <h4 id="currentPrice" class="fw-bold">0원</h4>
             <span class="text-muted" id="priceChangeInfo">+0원 (+0.00%)</span>
           </div>
         </div>
@@ -35,11 +35,49 @@
         <div id="buySection">
           <form method="post" id="buyForm">
             {% csrf_token %}
-            {{ form.as_p }}
             <input type="hidden" name="transaction_type" id="buyTransactionType" value="buy">
-            <hr />
-            <p>매수 가능 금액: <span id="buyAvailable">{{ balance_info.deposits.KRW.amount|intcomma }}원</span></p>
-            <p>총 주문 금액: <span id="buyTotal">0원</span></p>
+            <input type="hidden" name="price_type" id="priceTypeInput" value="limit">
+
+            <div class="btn-group mb-3 w-100" role="group">
+              <input type="radio" class="btn-check" name="price_type" id="limitBtn" value="limit" autocomplete="off" checked>
+              <label class="btn btn-outline-secondary" for="limitBtn" onclick="setPriceType('limit')">지정가</label>
+
+              <input type="radio" class="btn-check" name="price_type" id="marketBtn" value="market" autocomplete="off">
+              <label class="btn btn-outline-secondary" for="marketBtn" onclick="setPriceType('market')">시장가</label>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small">종목명</label>
+              <input type="text" class="form-control" name="stock_name" id="id_stock_name" value="{{ form.stock_name.value|default_if_none:'' }}">
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small">구매 가격</label>
+              <div class="input-group">
+                <input type="number" name="price" id="priceInput" class="form-control text-end" placeholder="가격 입력" value="{{ current_price }}">
+                <span class="input-group-text">원</span>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small">수량</label>
+              <div class="input-group">
+                <input type="number" name="quantity" id="quantityInput" class="form-control text-center" placeholder="1">
+                <span class="input-group-text">주</span>
+              </div>
+            </div>
+
+            <div class="border-top pt-2 small text-muted">
+              <div class="d-flex justify-content-between">
+                <span>매수 가능 금액</span>
+                <span id="buyAvailable">{{ balance_info.deposits.KRW.amount|intcomma }}원</span>
+              </div>
+              <div class="d-flex justify-content-between fw-semibold mt-1">
+                <span>총 주문 금액</span>
+                <span id="buyTotal">0원</span>
+              </div>
+            </div>
+
             <button type="submit" class="btn btn-danger w-100 mt-3">매수하기</button>
           </form>
         </div>
@@ -48,15 +86,53 @@
         <div id="sellSection" style="display: none;">
           <form method="post" id="sellForm">
             {% csrf_token %}
-            {{ form.as_p }}
-            <input type="hidden" name="transaction_type" id="sellTransactionType" value="sell">
-            <hr />
-            <p>예상 수익률: <span id="expectedReturn">0%</span></p>
-            <p>예상 손익: <span id="expectedProfit">0원</span></p>
-            <p>총 매도 금액: <span id="sellTotal">0원</span></p>
+            <input type="hidden" name="transaction_type" value="sell">
+            <input type="hidden" name="price_type" id="sellPriceTypeInput" value="limit">
+
+            <div class="btn-group mb-3 w-100" role="group">
+              <input type="radio" class="btn-check" name="sellPriceType" id="sellLimitBtn" value="limit" autocomplete="off" checked>
+              <label class="btn btn-outline-secondary" for="sellLimitBtn" onclick="setSellPriceType('limit')">지정가</label>
+
+              <input type="radio" class="btn-check" name="sellPriceType" id="sellMarketBtn" value="market" autocomplete="off">
+              <label class="btn btn-outline-secondary" for="sellMarketBtn" onclick="setSellPriceType('market')">시장가</label>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small">종목명</label>
+              <input type="text" class="form-control" name="stock_name" value="{{ form.stock_name.value|default_if_none:'' }}">
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small">판매 가격</label>
+              <div class="input-group">
+                <input type="number" name="price" id="sellPriceInput" class="form-control text-end" placeholder="가격 입력" value="{{ current_price }}">
+                <span class="input-group-text">원</span>
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label small">수량</label>
+              <div class="input-group">
+                <input type="number" name="quantity" id="sellQuantityInput" class="form-control text-center" placeholder="1">
+                <span class="input-group-text">주</span>
+              </div>
+            </div>
+
+            <div class="border-top pt-2 small text-muted">
+              <div class="d-flex justify-content-between">
+                <span>보유 수량</span>
+                <span id="sellAvailable">{{ holding_quantity|default:0 }}주</span>
+              </div>
+              <div class="d-flex justify-content-between fw-semibold mt-1">
+                <span>총 판매 금액</span>
+                <span id="sellTotal">0원</span>
+              </div>
+            </div>
+
             <button type="submit" class="btn btn-primary w-100 mt-3">매도하기</button>
           </form>
         </div>
+
       </div>
     </div>
 
@@ -65,100 +141,32 @@
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
-  const stockInput = document.getElementById("id_stock_name");
-  if (stockInput) {
-    stockInput.addEventListener("blur", () => loadChart(stockInput.value));
+  function setPriceType(type) {
+    const priceInput = document.getElementById("priceInput");
+    const priceTypeInput = document.getElementById("priceTypeInput");
+    const currentPriceText = document.getElementById("currentPrice").textContent.replace(/[^\d]/g, "");
+    priceTypeInput.value = type;
+
+    if (type === "market") {
+      priceInput.disabled = true;
+      priceInput.value = currentPriceText;
+    } else {
+      priceInput.disabled = false;
+      priceInput.value = "";
+    }
+
+    updateTotal();
   }
 
-  function loadChart(stockName) {
-    if (!stockName) return;
-
-    fetch(`/mock_investment/stock_chart_data/?stock_name=${encodeURIComponent(stockName)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          alert(data.error);
-          return;
-        }
-
-        document.getElementById("selectedStockName").textContent = stockName;
-        document.getElementById("stockTicker").textContent = data.ticker;
-        document.getElementById("currentPrice").textContent = data.close.at(-1).toLocaleString() + "원";
-
-        const change = data.price_change;
-        const percent = data.percent_change;
-        const changeElement = document.getElementById("priceChangeInfo");
-
-        if (typeof change === "number" && typeof percent === "number") {
-          const sign = change > 0 ? "+" : change < 0 ? "−" : "";
-          const formattedChange = `${sign}${Math.abs(change).toLocaleString()}원`;
-          const formattedPercent = `${sign}${Math.abs(percent).toFixed(2)}%`;
-
-          changeElement.textContent = `${formattedChange} (${formattedPercent})`;
-
-          changeElement.classList.remove("text-danger", "text-primary", "text-muted");
-          if (change > 0) {
-            changeElement.classList.add("text-danger");
-          } else if (change < 0) {
-            changeElement.classList.add("text-primary");
-          } else {
-            changeElement.classList.add("text-muted");
-          }
-        } else {
-          changeElement.textContent = "-";
-          changeElement.className = "text-muted";
-        }
-
-        const trace = {
-          x: data.date,
-          open: data.open,
-          high: data.high,
-          low: data.low,
-          close: data.close,
-          type: 'candlestick',
-          increasing: { line: { color: '#d33f3f' } },
-          decreasing: { line: { color: '#377bd2' } }
-        };
-
-        const layout = {
-          margin: { t: 20 },
-          xaxis: {
-            type: 'date',
-            range: ['2024-12-01', '2025-06-15'],
-            tickformat: "%-m월",
-            tickfont: { size: 11 },
-            tickangle: 0,
-            tick0: "2025-01-01",
-            showgrid: false,
-            ticks: "outside",
-            ticklen: 4,
-            linecolor: "#ccc",
-            rangeslider: { visible: false }
-          },
-          yaxis: {
-            tickformat: ",d",
-            ticksuffix: "원"
-          },
-          plot_bgcolor: "#ffffff",
-          paper_bgcolor: "#ffffff"
-        };
-
-        Plotly.newPlot("stockChart", [trace], layout, { displayModeBar: false });
-      })
-      .catch(err => console.error(err));
+  function updateTotal() {
+    const price = parseInt(document.getElementById("priceInput").value || 0);
+    const qty = parseInt(document.getElementById("quantityInput").value || 0);
+    const total = price > 0 && qty > 0 ? price * qty : 0;
+    document.getElementById("buyTotal").textContent = total.toLocaleString() + "원";
   }
 
-  function isMarketOpenNow() {
-    const now = new Date();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-
-    const currentMinutes = hour * 60 + minute;
-    const openMinutes = 9 * 60;
-    const closeMinutes = 15 * 60 + 30;
-
-    return currentMinutes >= openMinutes && currentMinutes <= closeMinutes;
-  }
+  document.getElementById("priceInput").addEventListener("input", updateTotal);
+  document.getElementById("quantityInput").addEventListener("input", updateTotal);
 
   document.getElementById("buyForm").addEventListener("submit", function (e) {
     if (!isMarketOpenNow()) {
@@ -174,15 +182,17 @@
     }
   });
 
-  // 탭 전환 로직
+  function isMarketOpenNow() {
+    const now = new Date();
+    const minutes = now.getHours() * 60 + now.getMinutes();
+    return minutes >= 540 && minutes <= 930;  // 09:00 ~ 15:30
+  }
+
+  // 탭 전환
   const buyTab = document.getElementById("buyTab");
   const sellTab = document.getElementById("sellTab");
   const buySection = document.getElementById("buySection");
   const sellSection = document.getElementById("sellSection");
-  const transactionTypeInput = document.getElementById("id_transaction_type");
-
-  const buyTransactionType = document.getElementById("buyTransactionType");
-  const sellTransactionType = document.getElementById("sellTransactionType");
 
   buyTab.addEventListener("click", () => {
     buyTab.classList.add("btn-danger");
@@ -201,5 +211,63 @@
     buySection.style.display = "none";
     sellSection.style.display = "block";
   });
+
+  // 종목 검색 후 차트 및 정보 반영
+  const stockInput = document.getElementById("id_stock_name");
+  if (stockInput) {
+    stockInput.addEventListener("blur", () => loadChart(stockInput.value));
+  }
+
+  function loadChart(stockName) {
+    if (!stockName) return;
+    fetch(`/mock_investment/stock_chart_data/?stock_name=${encodeURIComponent(stockName)}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("selectedStockName").textContent = stockName;
+        document.getElementById("stockTicker").textContent = data.ticker;
+        const lastClose = data.close.at(-1);
+        document.getElementById("currentPrice").textContent = lastClose.toLocaleString() + "원";
+        document.getElementById("priceInput").value = lastClose;
+
+        const change = data.price_change;
+        const percent = data.percent_change;
+        const changeEl = document.getElementById("priceChangeInfo");
+
+        if (typeof change === "number" && typeof percent === "number") {
+          const sign = change > 0 ? "+" : change < 0 ? "−" : "";
+          changeEl.textContent = `${sign}${Math.abs(change).toLocaleString()}원 (${sign}${Math.abs(percent).toFixed(2)}%)`;
+          changeEl.className = change > 0 ? "text-danger" : change < 0 ? "text-primary" : "text-muted";
+        } else {
+          changeEl.textContent = "-";
+          changeEl.className = "text-muted";
+        }
+
+        Plotly.newPlot("stockChart", [{
+          x: data.date,
+          open: data.open,
+          high: data.high,
+          low: data.low,
+          close: data.close,
+          type: "candlestick",
+          increasing: { line: { color: "#d33f3f" } },
+          decreasing: { line: { color: "#377bd2" } }
+        }], {
+          margin: { t: 20 },
+          xaxis: {
+            type: "date",
+            tickformat: "%-m월",
+            showgrid: false,
+            rangeslider: { visible: false }
+          },
+          yaxis: {
+            tickformat: ",d",
+            ticksuffix: "원"
+          },
+          plot_bgcolor: "#ffffff",
+          paper_bgcolor: "#ffffff"
+        }, { displayModeBar: false });
+      });
+  }
 </script>
+
 {% endblock %}

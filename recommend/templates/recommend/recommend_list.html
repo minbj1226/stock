@@ -3,91 +3,63 @@
 {% load static %}
 
 {% block head %}
-<!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="{% static 'css/recommendation.css' %}">
-
 <style>
   .sky-blue-header th {
     background-color: #87CEEB !important;
     color: #ffffff !important;
+  }
+  .sortable-header {
+    cursor: pointer;
+    user-select: none;
+  }
+  .arrow {
+    font-size: 0.9em;
+    margin-left: 4px;
   }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-  <h2 class="mb-4 text-primary">📈 추천 종목 TOP 5</h2>
 
-  {% if top5 %}
-  <div class="table-responsive mb-4">
-    <table class="table table-bordered table-striped text-center align-middle">
-      <thead class="sky-blue-header">
-        <tr>
-          <th>순위</th>
-          <th>종목명</th>
-          <th>현재가</th>
-          <th>시장</th>
-          <th>시가총액</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for stock in top5 %}
-        <tr>
-          <td>{{ forloop.counter }}</td>
-          <td>
-            <a href="{% url 'stocks:stock_detail' stock.ticker %}">
-              {{ stock.corp_name }}
-            </a>
-          </td>
-          <td>{{ stock.stck_prpr|intcomma }}원</td>
-          <td>{{ stock.market }}</td>
-          <td>{{ stock.market_cap|intcomma }}원</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-  <p class="text-muted">상위 추천 종목이 없습니다.</p>
-  {% endif %}
+  <h2 class="mb-2 text">
+    {{ profile_type }} 추천 종목
+  </h2>
+  <p class="text-muted" style="font-size: 0.95rem;">
+    {{ profile_description }}
+  </p>
 
-  <h2 class="mb-4 text-secondary">📋 전체 추천 종목 목록</h2>
-
-  {% if others %}
+  {% if stocks %}
   <div class="table-responsive">
     <table id="recommend-table" class="display table table-striped text-center" style="width:100%">
       <thead class="sky-blue-header">
         <tr>
           <th>순위</th>
           <th>종목명</th>
+          <th>카테고리</th>
           <th>현재가</th>
           <th>PER</th>
           <th>PBR</th>
           <th>EPS</th>
           <th>변동성</th>
-          <th>β</th>
-          <th>시장</th>
+          <th>B</th>
           <th>시가총액</th>
         </tr>
       </thead>
       <tbody>
-        {% for stock in others %}
+        {% for stock in stocks %}
         <tr>
-          <td>{{ forloop.counter0|add:6 }}</td>
-          <td>
-            <a href="{% url 'stocks:stock_detail' stock.ticker %}">
-              {{ stock.corp_name }}
-            </a>
-          </td>
+          <td>{{ forloop.counter }}</td>
+          <td><a href="{% url 'stocks:stock_detail' stock.ticker %}">{{ stock.corp_name }}</a></td>
+          <td>{{ stock.sector }}</td>
           <td>{{ stock.stck_prpr|intcomma }}원</td>
           <td>{{ stock.per }}</td>
           <td>{{ stock.pbr }}</td>
           <td>{{ stock.eps }}</td>
-          <td>{{ stock.volatility }}%</td>
-          <td>{{ stock.beta }}</td>
-          <td>{{ stock.market }}</td>
-          <td>{{ stock.market_cap|intcomma }}원</td>
+          <td>{{ stock.volatility|floatformat:2 }}%</td>
+          <td>{{ stock.beta|floatformat:2 }}</td>
+          <td>{{ stock.market_cap|intcomma }}억원</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -104,26 +76,7 @@
 {% endblock %}
 
 {% block script %}
-<!-- jQuery & DataTables JS -->
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-<script>
-  $(document).ready(function () {
-    $('#recommend-table').DataTable({
-      pageLength: 15,
-      lengthChange: false,
-      ordering: true,
-      info: false,
-      language: {
-        search: "검색:",
-        paginate: {
-          previous: "이전",
-          next: "다음"
-        },
-        emptyTable: "추천 종목이 없습니다."
-      }
-    });
-  });
-</script>
 {% endblock %}
