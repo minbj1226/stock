@@ -54,76 +54,25 @@
         <!-- 📈 급등/급락 종목 -->
         <div class="row mt-4">
             <div class="col-12 mb-3">
-                <ul class="nav nav-tabs custom-tab justify-content-start border-0">
+                <ul class="nav nav-tabs custom-tab justify-content-start border-0" id="market-tabs">
                     <li class="nav-item">
-                        <a href="?market=0000" class="nav-link {% if selected_market == '0000' %}active{% endif %}">
-                        전체
-                        </a>
+                        <a href="#" class="nav-link {% if selected_market == '0000' %}active{% endif %}" data-market="0000">전체</a>
                     </li>
                     <li class="nav-item">
-                        <a href="?market=0001" class="nav-link {% if selected_market == '0001' %}active{% endif %}">
-                        코스피
-                        </a>
+                        <a href="#" class="nav-link {% if selected_market == '0001' %}active{% endif %}" data-market="0001">코스피</a>
                     </li>
                     <li class="nav-item">
-                        <a href="?market=1001" class="nav-link {% if selected_market == '1001' %}active{% endif %}">
-                        코스닥
-                        </a>
+                        <a href="#" class="nav-link {% if selected_market == '1001' %}active{% endif %}" data-market="1001">코스닥</a>
                     </li>
                     <li class="nav-item">
-                        <a href="?market=2001" class="nav-link {% if selected_market == '2001' %}active{% endif %}">
-                        코스피200
-                        </a>
+                        <a href="#" class="nav-link {% if selected_market == '2001' %}active{% endif %}" data-market="2001">코스피200</a>
                     </li>
                 </ul>
             </div>
 
-            <div class="col-md-6">
-                <h3 class="fw-bold">📈 급등 TOP 5</h3>
-                <table class="table text-center custom-table">
-                    <thead>
-                        <tr>
-                            <th>순위</th>
-                            <th>종목명</th>
-                            <th>현재가</th>
-                            <th>등락</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stock in top_rising %}
-                        <tr class="toss-font">
-                            <td>{{ stock.순위 }}</td>
-                            <td>{{ stock.종목명 }}</td>
-                            <td>{{ stock.현재가|intcomma }}</td>
-                            <td class="text-danger">{{ stock.등락|intcomma }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="col-md-6">
-                <h3 class="fw-bold">📉 급락 TOP 5</h3>
-                <table class="table text-center custom-table">
-                    <thead>
-                        <tr>
-                            <th>순위</th>
-                            <th>종목명</th>
-                            <th>현재가</th>
-                            <th>등락</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for stock in top_falling %}
-                        <tr class="toss-font">
-                            <td>{{ stock.순위 }}</td>
-                            <td>{{ stock.종목명 }}</td>
-                            <td>{{ stock.현재가|intcomma }}</td>
-                            <td class="text-primary">{{ stock.등락|intcomma }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <!-- AJAX로 교체될 부분 -->
+            <div id="market-stocks-container">
+                {% include 'dashboard/market_stocks.html' %}
             </div>
         </div>
 
@@ -155,18 +104,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const chartConfigs = {{ market_data|safe }};
-
     chartConfigs.forEach(market => {
-        const lineColor =
-            market.trend === 'up' ? 'rgba(220, 53, 69, 1)' :
-            market.trend === 'down' ? 'rgba(13, 110, 253, 1)' :
-            'rgba(108, 117, 125, 1)';
-
-        const bgColor =
-            market.trend === 'up' ? 'rgba(220, 53, 69, 0.2)' :
-            market.trend === 'down' ? 'rgba(13, 110, 253, 0.2)' :
-            'rgba(108, 117, 125, 0.2)';
-
+        const lineColor = market.trend === 'up' ? 'rgba(220, 53, 69, 1)' :
+                          market.trend === 'down' ? 'rgba(13, 110, 253, 1)' :
+                          'rgba(108, 117, 125, 1)';
+        const bgColor = market.trend === 'up' ? 'rgba(220, 53, 69, 0.2)' :
+                        market.trend === 'down' ? 'rgba(13, 110, 253, 0.2)' :
+                        'rgba(108, 117, 125, 0.2)';
         const ctx = document.getElementById(`${market.name}Chart`).getContext('2d');
         new Chart(ctx, {
             type: 'line',
@@ -188,6 +132,31 @@
                     y: { display: true }
                 }
             }
+        });
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#market-tabs .nav-link').click(function (e) {
+            e.preventDefault();
+            const marketCode = $(this).data('market');
+
+            $('#market-tabs .nav-link').removeClass('active');
+            $(this).addClass('active');
+
+            $.ajax({
+                url: 'ajax/market/',
+                data: { market: marketCode },
+                type: 'GET',
+                success: function (response) {
+                    $('#market-stocks-container').html(response.html);  // ← JSON에서 html 부분만 삽입
+                },
+                error: function () {
+                    alert('데이터 로딩에 실패했습니다.');
+                }
+            });
         });
     });
 </script>
