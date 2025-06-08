@@ -5,15 +5,14 @@ from accounts.models import InvestmentProfile
 # 시가총액 단위 변환 함수
 def format_market_cap(value):
     try:
-        value = int(value)
-        value_in_eok = value // 100_000_000  # 원 → 억 단위로 변환
+        value = int(str(value).replace(",", ""))
     except (ValueError, TypeError):
         return "N/A"
 
-    if value_in_eok >= 10_000:  # 1조 이상
-        return f"{value_in_eok / 10_000:.1f}조원"
+    if value >= 10_000:  # 1조 이상 (1만 억 이상)
+        return f"{value / 10_000:.1f}조원"
     else:
-        return f"{value_in_eok:,}억원"
+        return f"{value:,}억원"
 
 PROFILE_TYPE_DESCRIPTION = {
     "공격투자형": """• 1년 변동성 > 30% 또는 β > 1.5
